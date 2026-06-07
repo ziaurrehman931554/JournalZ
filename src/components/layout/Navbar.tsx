@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import ThemeToggle from "../ui/ThemeToggle";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, ExternalLink } from "lucide-react";
+import logo from "../../assets/logo.png";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -12,38 +13,89 @@ export default function Navbar() {
     navigate("/join");
   };
 
+  const links = [
+    { label: "Features", href: "/#features" },
+    { label: "FAQ", href: "/#faq" },
+    { label: "About", href: "/#about" },
+    { label: "Contact", href: "mailto:ziaurrehman931554@gmail.com" },
+    { label: "GitHub", href: "https://github.com/ziaurrehman931554/JournalZ", icon: ExternalLink },
+  ];
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border-b border-white/20 dark:border-white/10">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl">
-          <span className="text-[var(--accent)]">J</span>ournalZ.
+    <nav className="fixed top-4 left-4 right-4 z-50 rounded-2xl backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border border-white/30 dark:border-white/10 shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2.5">
+          <img src={logo} alt="JournalZ" className="w-8 h-8 object-contain" />
+          <span className="font-bold text-lg">
+            <span className="text-[var(--accent)]">J</span>ournalZ.
+          </span>
         </Link>
-        <div className="flex items-center gap-3">
+
+        <div className="hidden md:flex items-center gap-1">
+          {links.map((l) => {
+            const Icon = l.icon;
+            const isExternal = l.href.startsWith("http") || l.href.startsWith("mailto");
+            if (isExternal) {
+              return (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  target={l.href.startsWith("http") ? "_blank" : undefined}
+                  rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-white/10 dark:hover:bg-white/5 transition-all duration-200"
+                >
+                  {Icon && <Icon size={14} />}
+                  {l.label}
+                </a>
+              );
+            }
+            return (
+              <a
+                key={l.label}
+                href={l.href}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-white/10 dark:hover:bg-white/5 transition-all duration-200"
+              >
+                {l.label}
+              </a>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
           {user ? (
             <>
-              <Link to="/app" className="px-4 py-2 rounded-xl bg-[var(--accent)]/10 text-[var(--accent)] font-medium text-sm hover:bg-[var(--accent)]/20 transition-all duration-200">
+              <Link
+                to="/app"
+                className="hidden sm:inline-flex px-4 py-2 rounded-xl bg-[var(--accent)] text-white font-medium text-sm hover:opacity-90 transition-all duration-200"
+              >
                 My Notes
               </Link>
-              <ThemeToggle />
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10">
                 {user.photoURL ? (
                   <img src={user.photoURL} alt="" className="w-6 h-6 rounded-full" />
                 ) : (
                   <User size={16} />
                 )}
-                <span className="text-sm max-w-[100px] truncate">{user.displayName || user.email}</span>
+                <span className="text-sm max-w-[100px] truncate">
+                  {user.displayName || user.email}
+                </span>
               </div>
-              <button onClick={handleLogout} className="p-2 rounded-xl hover:bg-red-500/20 transition-all duration-200 cursor-pointer" title="Sign out">
+              <button
+                onClick={handleLogout}
+                className="p-2 rounded-xl hover:bg-red-500/20 transition-all duration-200 cursor-pointer"
+                title="Sign out"
+              >
                 <LogOut size={16} className="text-red-400" />
               </button>
             </>
           ) : (
-            <>
-              <ThemeToggle />
-              <Link to="/join" className="px-4 py-2 rounded-xl bg-[var(--accent)] text-white font-medium text-sm hover:opacity-90 transition-all duration-200">
-                Sign In
-              </Link>
-            </>
+            <Link
+              to="/join"
+              className="px-4 py-2 rounded-xl bg-[var(--accent)] text-white font-medium text-sm hover:opacity-90 transition-all duration-200"
+            >
+              Sign In
+            </Link>
           )}
         </div>
       </div>

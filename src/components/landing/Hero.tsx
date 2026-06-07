@@ -1,11 +1,16 @@
 import { Link } from "react-router-dom";
 import { Pen, Shield, Cloud, Bell, CheckSquare, Layers } from "lucide-react";
+import AnimatedSection from "../ui/AnimatedSection";
+import logo from "../../assets/logo.png";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-20 pb-16 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-16 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/5 via-transparent to-[var(--accent)]/5 pointer-events-none" />
-      <div className="relative z-10 text-center max-w-4xl mx-auto">
+      <AnimatedSection className="relative z-10 text-center max-w-4xl mx-auto">
+        <div className="flex justify-center mb-6">
+          <img src={logo} alt="JournalZ" className="w-20 h-20 md:w-24 md:h-24 object-contain animate-float" />
+        </div>
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 text-sm mb-8">
           <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
           Your thoughts, encrypted & synced
@@ -50,7 +55,7 @@ export default function Hero() {
             </div>
           ))}
         </div>
-      </div>
+      </AnimatedSection>
     </section>
   );
 }

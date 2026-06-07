@@ -1,4 +1,5 @@
 import { Shield, Cloud, Bell, CheckSquare, Layers, Pen, Wifi, Lock } from "lucide-react";
+import AnimatedSection from "../ui/AnimatedSection";
 
 const features = [
   {
@@ -45,34 +46,38 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="py-24 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Everything you need for{" "}
-            <span className="text-[var(--accent)]">peaceful writing</span>
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            JournalZ combines the best of note-taking with modern security and privacy practices.
-          </p>
+    <AnimatedSection id="features">
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Everything you need for{" "}
+              <span className="text-[var(--accent)]">peaceful writing</span>
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              JournalZ combines the best of note-taking with modern security and privacy practices.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {features.map(({ icon: Icon, title, description }, idx) => (
+              <AnimatedSection key={title}>
+                <div
+                  className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white/15 dark:hover:bg-white/10 transition-all duration-200"
+                  style={{ transitionDelay: `${idx * 50}ms` }}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center mb-4">
+                    <Icon size={20} className="text-[var(--accent)]" />
+                  </div>
+                  <h3 className="font-semibold mb-2">{title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {description}
+                  </p>
+                </div>
+              </AnimatedSection>
+            ))}
+          </div>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {features.map(({ icon: Icon, title, description }) => (
-            <div
-              key={title}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white/15 dark:hover:bg-white/10 transition-all duration-200"
-            >
-              <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center mb-4">
-                <Icon size={20} className="text-[var(--accent)]" />
-              </div>
-              <h3 className="font-semibold mb-2">{title}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                {description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+      </section>
+    </AnimatedSection>
   );
 }
