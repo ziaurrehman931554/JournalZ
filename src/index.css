@@ -50,6 +50,16 @@ html {
   color: #1a1a1a;
 }
 
+/* Hover pop: subtle scale on hover for glass cards */
+.hover-pop {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@media (hover: hover) {
+  .hover-pop:hover {
+    transform: scale(1.03);
+  }
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }

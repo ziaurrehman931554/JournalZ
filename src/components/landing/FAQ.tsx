@@ -43,7 +43,7 @@ function AccordionItem({
   const contentRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="rounded-2xl backdrop-blur-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 overflow-hidden">
+    <div className="rounded-2xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 overflow-hidden">
       <button
         onClick={onClick}
         className="w-full px-6 py-4 flex items-center justify-between text-left font-medium cursor-pointer"

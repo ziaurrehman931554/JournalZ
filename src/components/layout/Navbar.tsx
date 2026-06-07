@@ -83,7 +83,7 @@ export default function Navbar() {
               >
                 My Notes
               </Link>
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10">
                 {user.photoURL ? (
                   <img src={user.photoURL} alt="" className="w-6 h-6 rounded-full" />
                 ) : (

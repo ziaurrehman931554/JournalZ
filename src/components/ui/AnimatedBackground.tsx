@@ -31,7 +31,7 @@ export default function AnimatedBackground() {
       const el = document.createElement("div");
       const size = 80 + Math.random() * 200;
       const type = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
-      const opacity = isDark ? "33" : "55";
+      const opacity = isDark ? "33" : "99";
 
       el.style.width = `${size}px`;
       el.style.height = `${size}px`;
@@ -44,7 +44,7 @@ export default function AnimatedBackground() {
       el.style.left = `${Math.random() * 100}%`;
       el.style.top = `${Math.random() * 100}%`;
       el.style.transform = "translate(-50%, -50%)";
-      el.style.opacity = isDark ? "0.5" : "0.7";
+      el.style.opacity = isDark ? "0.5" : "1";
 
       container.appendChild(el);
 

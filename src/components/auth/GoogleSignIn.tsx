@@ -6,7 +6,7 @@ export default function GoogleSignIn() {
   return (
     <button
       onClick={signInWithGoogle}
-      className="w-full py-3 px-4 rounded-xl backdrop-blur-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 font-medium hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200 flex items-center justify-center gap-3 cursor-pointer"
+      className="w-full py-3 px-4 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 font-medium hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200 flex items-center justify-center gap-3 cursor-pointer"
     >
       <svg width="20" height="20" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
