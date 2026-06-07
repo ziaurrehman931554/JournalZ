@@ -22,7 +22,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-4 left-4 right-4 z-50 rounded-2xl backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border border-white/30 dark:border-white/10 shadow-lg">
+    <nav className="fixed top-4 left-4 right-4 z-50 rounded-2xl backdrop-blur-2xl bg-white/50 dark:bg-gray-900/50 border border-white/20 dark:border-white/5 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5">
           <img src={logo} alt="JournalZ" className="w-8 h-8 object-contain" />

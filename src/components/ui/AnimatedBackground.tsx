@@ -20,18 +20,21 @@ export default function AnimatedBackground() {
     const container = containerRef.current;
     if (!container) return;
 
-    const colors = ["var(--accent)", "#60a5fa", "#818cf8", "#a78bfa", "#6366f1"];
+    const darkColors = ["var(--accent)", "#818cf8", "#a78bfa", "#6366f1", "#8b5cf6"];
+    const lightColors = ["#1e40af", "#2563eb", "#4f46e5", "#7c3aed", "#4338ca"];
     const shapeTypes = ["circle", "rounded", "blob"];
 
     const count = 8;
     const items: Shape[] = [];
     const isDark = document.documentElement.classList.contains("dark");
 
+    const colors = isDark ? darkColors : lightColors;
+
     for (let i = 0; i < count; i++) {
       const el = document.createElement("div");
       const size = 80 + Math.random() * 200;
       const type = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
-      const opacity = isDark ? "33" : "99";
+      const opacity = isDark ? "55" : "bb";
 
       el.style.width = `${size}px`;
       el.style.height = `${size}px`;
@@ -44,7 +47,7 @@ export default function AnimatedBackground() {
       el.style.left = `${Math.random() * 100}%`;
       el.style.top = `${Math.random() * 100}%`;
       el.style.transform = "translate(-50%, -50%)";
-      el.style.opacity = isDark ? "0.5" : "1";
+      el.style.opacity = isDark ? "0.7" : "1";
 
       container.appendChild(el);
 

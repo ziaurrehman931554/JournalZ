@@ -50,14 +50,31 @@ html {
   color: #1a1a1a;
 }
 
-/* Hover pop: subtle scale on hover for glass cards */
+/* Hover pop: subtle scale on hover */
 .hover-pop {
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @media (hover: hover) {
   .hover-pop:hover {
     transform: scale(1.03);
   }
+  section p:hover,
+  section h1:hover,
+  section h2:hover,
+  section h3:hover,
+  section h4:hover,
+  section li:hover,
+  section span:hover {
+    transform: scale(1.02);
+  }
+}
+section p,
+section h1,
+section h2,
+section h3,
+section h4,
+section li {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes float {
