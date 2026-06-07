@@ -3,9 +3,9 @@ import FolderTree from "../components/notes/FolderTree";
 import NoteList from "../components/notes/NoteList";
 import NoteEditor from "../components/notes/NoteEditor";
 import ChecklistEditor from "../components/notes/ChecklistEditor";
-import { Cloud, CloudOff, RefreshCw, Plus } from "lucide-react";
+import Navbar from "../components/layout/Navbar";
+import { Plus } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
 
 function AppContent() {
   const {
@@ -15,7 +15,6 @@ function AppContent() {
     selectedNote,
     selectedFolderId,
     selectedView,
-    syncStatus,
     setSelectedNote,
     setSelectedFolderId,
     setSelectedView,
@@ -25,9 +24,7 @@ function AppContent() {
     togglePinNote,
     createFolder,
     deleteFolder,
-    syncNow,
   } = useApp();
-  const { user } = useAuth();
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
 
@@ -51,37 +48,8 @@ function AppContent() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 backdrop-blur-xl bg-white/30 dark:bg-gray-900/30">
-        <div className="flex items-center gap-2">
-          <span className="font-bold">
-            <span className="text-[var(--accent)]">J</span>ournalZ.
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 text-xs text-gray-500">
-            {navigator.onLine ? (
-              <Cloud size={14} className="text-green-400" />
-            ) : (
-              <CloudOff size={14} className="text-yellow-400" />
-            )}
-            {syncStatus.lastSynced
-              ? new Date(syncStatus.lastSynced).toLocaleTimeString()
-              : "Not synced"}
-          </div>
-          <button
-            onClick={syncNow}
-            disabled={syncStatus.isSyncing || !user}
-            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50 cursor-pointer"
-          >
-            <RefreshCw
-              size={14}
-              className={syncStatus.isSyncing ? "animate-spin" : ""}
-            />
-          </button>
-        </div>
-      </div>
-
-      <div className="flex-1 flex overflow-hidden">
+      <Navbar />
+      <div className="flex-1 flex overflow-hidden pt-20">
         <div className="w-64 border-r border-white/10 flex flex-col">
           <FolderTree
             folders={folders}

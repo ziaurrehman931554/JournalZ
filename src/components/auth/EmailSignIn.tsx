@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User, Camera } from "lucide-react";
 
 interface EmailSignInProps {
   mode: "signin" | "signup";
@@ -12,9 +12,20 @@ export default function EmailSignIn({ mode, onToggleMode }: EmailSignInProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [profilePic, setProfilePic] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setProfilePic(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +35,7 @@ export default function EmailSignIn({ mode, onToggleMode }: EmailSignInProps) {
       if (mode === "signin") {
         await signInWithEmail(email, password);
       } else {
-        await signUpWithEmail(email, password);
+        await signUpWithEmail(email, password, fullName, profilePic || undefined);
       }
     } catch (err: unknown) {
       const firebaseError = err as { code?: string; message?: string };
@@ -54,6 +65,40 @@ export default function EmailSignIn({ mode, onToggleMode }: EmailSignInProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {mode === "signup" && (
+        <>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="relative w-20 h-20 rounded-full overflow-hidden bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 cursor-pointer group"
+            >
+              {profilePic ? (
+                <img src={profilePic} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <Camera size={24} />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                <Camera size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </button>
+            <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
+          </div>
+          <div className="relative">
+            <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              className="w-full pl-10 pr-4 py-3 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors"
+            />
+          </div>
+        </>
+      )}
       <div className="relative">
         <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input

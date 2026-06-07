@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import {
   auth,
   googleProvider,
+  storage,
 } from "../firebase";
 import {
   type User,
@@ -13,7 +14,9 @@ import {
   sendPasswordResetEmail,
   OAuthProvider,
   onAuthStateChanged,
+  updateProfile,
 } from "firebase/auth";
+import { ref, uploadString, getDownloadURL } from "firebase/storage";
 
 type AuthContextType = {
   user: User | null;
@@ -21,7 +24,7 @@ type AuthContextType = {
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, fullName?: string, profilePicBase64?: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -62,8 +65,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
-  const signUpWithEmail = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+  const signUpWithEmail = async (email: string, password: string, fullName?: string, profilePicBase64?: string) => {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    let photoURL: string | undefined;
+    if (profilePicBase64) {
+      try {
+        const storageRef = ref(storage, `profile-pictures/${cred.user.uid}`);
+        await uploadString(storageRef, profilePicBase64, "data_url");
+        photoURL = await getDownloadURL(storageRef);
+      } catch {
+        // profile pic upload failed, continue without it
+      }
+    }
+    if (fullName || photoURL) {
+      await updateProfile(cred.user, { displayName: fullName || null, photoURL: photoURL || null });
+    }
   };
 
   const resetPassword = async (email: string) => {

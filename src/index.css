@@ -58,23 +58,36 @@ html {
   .hover-pop:hover {
     transform: scale(1.03);
   }
-  section p:hover,
-  section h1:hover,
-  section h2:hover,
-  section h3:hover,
-  section h4:hover,
-  section li:hover,
-  section span:hover {
+  p:hover,
+  h1:hover,
+  h2:hover,
+  h3:hover,
+  h4:hover,
+  li:hover {
     transform: scale(1.02);
   }
 }
-section p,
-section h1,
-section h2,
-section h3,
-section h4,
-section li {
+p,
+h1,
+h2,
+h3,
+h4,
+li {
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.Tiptap p,
+.Tiptap h1,
+.Tiptap h2,
+.Tiptap h3,
+.Tiptap li {
+  transition: none;
+}
+.Tiptap p:hover,
+.Tiptap h1:hover,
+.Tiptap h2:hover,
+.Tiptap h3:hover,
+.Tiptap li:hover {
+  transform: none !important;
 }
 
 @keyframes float {
