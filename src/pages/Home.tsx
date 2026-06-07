@@ -7,6 +7,7 @@ import Footer from "../components/landing/Footer";
 import AnimatedBackground from "../components/ui/AnimatedBackground";
 import CursorFollower from "../components/ui/CursorFollower";
 import ScrollToTop from "../components/ui/ScrollToTop";
+import ShareBanner from "../components/ui/ShareBanner";
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
         <FAQ />
       </main>
       <Footer />
+      <ShareBanner />
       <ScrollToTop />
     </div>
   );

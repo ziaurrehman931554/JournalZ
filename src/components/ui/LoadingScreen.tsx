@@ -1,27 +1,43 @@
 import { useEffect, useState } from "react";
-import logo from "../../assets/logo.png";
 
 interface LoadingScreenProps {
   onFinished: () => void;
 }
 
+function IOSpinner() {
+  const segments = 12;
+  return (
+    <div className="relative w-10 h-10">
+      {Array.from({ length: segments }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute top-0 left-1/2 -translate-x-1/2 origin-[50%_20px]"
+          style={{ transform: `rotate(${i * 30}deg)` }}
+        >
+          <div
+            className="w-[3px] h-[9px] rounded-full bg-[var(--accent)]"
+            style={{
+              opacity: 0.2 + (i / segments) * 0.8,
+              animation: `iosSpin 1s linear infinite`,
+              animationDelay: `${(i / segments) * -1}s`,
+            }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function LoadingScreen({ onFinished }: LoadingScreenProps) {
   const [visible, setVisible] = useState(true);
-  const [start, setStart] = useState(false);
 
   useEffect(() => {
-    const startTimer = setTimeout(() => setStart(true), 100);
-    return () => clearTimeout(startTimer);
-  }, []);
-
-  useEffect(() => {
-    if (!start) return;
-    const finishTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
       setVisible(false);
       setTimeout(onFinished, 600);
-    }, 1500);
-    return () => clearTimeout(finishTimer);
-  }, [start, onFinished]);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [onFinished]);
 
   return (
     <div
@@ -31,22 +47,16 @@ export default function LoadingScreen({ onFinished }: LoadingScreenProps) {
           : "opacity-0 scale-110 pointer-events-none"
       }`}
     >
-      <img
-        src={logo}
-        alt="JournalZ"
-        className="w-24 h-24 md:w-28 md:h-28 object-contain mb-6 animate-float"
-      />
-      <h1 className="text-3xl font-bold tracking-tight">
-        <span className="text-[var(--accent)]">J</span>ournalZ.
-      </h1>
-      <div className="mt-12 flex gap-1.5">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="w-2.5 h-2.5 rounded-full bg-[var(--accent)]"
-            style={{ animation: `loadPulse 1.2s ease-in-out ${i * 0.2}s infinite` }}
-          />
-        ))}
+      <div className="flex flex-col items-center justify-center flex-1">
+        <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-[var(--accent)]/10 flex items-center justify-center mb-6 animate-float">
+          <span className="text-5xl md:text-6xl font-black text-[var(--accent)]">Z</span>
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight">
+          <span className="text-[var(--accent)]">J</span>ournalZ.
+        </h1>
+      </div>
+      <div className="pb-16">
+        <IOSpinner />
       </div>
     </div>
   );

@@ -4,6 +4,8 @@ import { AuthProvider } from "./context/AuthContext";
 import Home from "./pages/Home";
 import Join from "./pages/Join";
 import AppPage from "./pages/App";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingScreen from "./components/ui/LoadingScreen";
 
@@ -17,6 +19,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/join" element={<Join />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route
           path="/app"
           element={

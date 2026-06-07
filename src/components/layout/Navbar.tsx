@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import ThemeToggle from "../ui/ThemeToggle";
-import { LogOut, User, ExternalLink } from "lucide-react";
+import { LogOut, User, ExternalLink, LogIn } from "lucide-react";
 import logo from "../../assets/logo.png";
 
 export default function Navbar() {
@@ -16,8 +16,8 @@ export default function Navbar() {
   const links = [
     { label: "Features", href: "/#features" },
     { label: "FAQ", href: "/#faq" },
-    { label: "About", href: "/#about" },
-    { label: "Contact", href: "mailto:ziaurrehman931554@gmail.com" },
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
     { label: "GitHub", href: "https://github.com/ziaurrehman931554/JournalZ", icon: ExternalLink },
   ];
 
@@ -35,6 +35,7 @@ export default function Navbar() {
           {links.map((l) => {
             const Icon = l.icon;
             const isExternal = l.href.startsWith("http") || l.href.startsWith("mailto");
+            const isRoute = l.href.startsWith("/");
             if (isExternal) {
               return (
                 <a
@@ -47,6 +48,17 @@ export default function Navbar() {
                   {Icon && <Icon size={14} />}
                   {l.label}
                 </a>
+              );
+            }
+            if (isRoute) {
+              return (
+                <Link
+                  key={l.label}
+                  to={l.href}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-white/10 dark:hover:bg-white/5 transition-all duration-200"
+                >
+                  {l.label}
+                </Link>
               );
             }
             return (
@@ -90,12 +102,21 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            <Link
-              to="/join"
-              className="px-4 py-2 rounded-xl bg-[var(--accent)] text-white font-medium text-sm hover:opacity-90 transition-all duration-200"
-            >
-              Sign In
-            </Link>
+            <>
+              <Link
+                to="/join"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-white/10 dark:hover:bg-white/5 transition-all duration-200"
+              >
+                <LogIn size={14} />
+                Log in
+              </Link>
+              <Link
+                to="/join"
+                className="px-4 py-2 rounded-xl bg-[var(--accent)] text-white font-medium text-sm hover:opacity-90 transition-all duration-200"
+              >
+                Join for Free
+              </Link>
+            </>
           )}
         </div>
       </div>

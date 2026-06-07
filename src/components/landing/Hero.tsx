@@ -28,13 +28,13 @@ export default function Hero() {
             to="/join"
             className="px-8 py-3.5 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90 transition-all duration-200 shadow-lg shadow-[var(--accent)]/25"
           >
-            Get Started Free
+            Start Writing Free
           </Link>
           <Link
             to="/join"
             className="px-8 py-3.5 rounded-xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 font-semibold hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
           >
-            Sign In
+            Log in
           </Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-3xl mx-auto">

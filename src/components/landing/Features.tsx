@@ -62,14 +62,14 @@ export default function Features() {
             {features.map(({ icon: Icon, title, description }, idx) => (
               <AnimatedSection key={title}>
                 <div
-                  className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white/15 dark:hover:bg-white/10 transition-all duration-200"
+                  className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white/15 dark:hover:bg-white/10 transition-all duration-200 h-full flex flex-col"
                   style={{ transitionDelay: `${idx * 50}ms` }}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center mb-4 shrink-0">
                     <Icon size={20} className="text-[var(--accent)]" />
                   </div>
                   <h3 className="font-semibold mb-2">{title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-1">
                     {description}
                   </p>
                 </div>

@@ -64,6 +64,20 @@ html {
   50% { opacity: 1; transform: scale(1.2); }
 }
 
+@keyframes iosSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
 .Tiptap h1 {
   font-size: 1.75rem;
   font-weight: 700;
