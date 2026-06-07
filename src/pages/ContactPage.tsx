@@ -64,7 +64,7 @@ export default function ContactPage() {
                     href={href}
                     target={href.startsWith("http") ? "_blank" : undefined}
                     rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white/15 dark:hover:bg-white/10 transition-all duration-200 group"
+                    className="p-6 rounded-2xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 hover:bg-white/15 dark:hover:bg-white/10 transition-all duration-200 group"
                   >
                     <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center mb-4">
                       <Icon size={20} className="text-[var(--accent)]" />
@@ -76,7 +76,7 @@ export default function ContactPage() {
                 ))}
               </div>
 
-              <div className="p-8 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10">
+              <div className="p-8 rounded-2xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10">
                 <h2 className="text-xl font-bold mb-4">Send a Message</h2>
                 <form
                   action="mailto:ziaurrehman931554@gmail.com"
@@ -90,14 +90,14 @@ export default function ContactPage() {
                       name="subject"
                       placeholder="Your Name"
                       required
-                      className="w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
+                      className="w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
                     />
                     <input
                       type="email"
                       name="email"
                       placeholder="Your Email"
                       required
-                      className="w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
+                      className="w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
                     />
                   </div>
                   <textarea
@@ -105,7 +105,7 @@ export default function ContactPage() {
                     placeholder="Your message..."
                     rows={5}
                     required
-                    className="w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm resize-none"
+                    className="w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm resize-none"
                   />
                   <button
                     type="submit"

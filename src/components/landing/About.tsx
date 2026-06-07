@@ -54,7 +54,7 @@ export default function About() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-3xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 p-8 flex items-center justify-center">
+              <div className="aspect-square rounded-3xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 p-8 flex items-center justify-center">
                 <div className="text-center">
                   <div className="text-6xl mb-4">🔐</div>
                   <h3 className="text-xl font-bold mb-2">Your Key, Your Data</h3>

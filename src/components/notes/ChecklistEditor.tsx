@@ -117,7 +117,7 @@ export default function ChecklistEditor({ note, onUpdate }: ChecklistEditorProps
             onChange={(e) => setNewItem(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addItem()}
             placeholder="Add an item..."
-            className="flex-1 px-4 py-2.5 rounded-xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
+            className="flex-1 px-4 py-2.5 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
           />
           <button
             onClick={addItem}

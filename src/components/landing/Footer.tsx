@@ -47,19 +47,19 @@ export default function Footer() {
                 href="https://github.com/ziaurrehman931554/JournalZ"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 rounded-xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
+                className="p-2.5 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
               >
                 <ExternalLink size={18} />
               </a>
               <a
                 href="mailto:ziaurrehman931554@gmail.com"
-                className="p-2.5 rounded-xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
+                className="p-2.5 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
               >
                 <Mail size={18} />
               </a>
               <a
                 href="/"
-                className="p-2.5 rounded-xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
+                className="p-2.5 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
               >
                 <Globe size={18} />
               </a>
