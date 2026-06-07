@@ -1,8 +1,17 @@
+import Navbar from "../components/layout/Navbar";
+import Hero from "../components/landing/Hero";
+import Features from "../components/landing/Features";
+import FAQ from "../components/landing/FAQ";
+import Footer from "../components/landing/Footer";
+
 export default function Home() {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">Your Notes</h1>
-      {/* Note-taking UI will go here */}
+    <div className="min-h-screen">
+      <Navbar />
+      <Hero />
+      <Features />
+      <FAQ />
+      <Footer />
     </div>
   );
 }

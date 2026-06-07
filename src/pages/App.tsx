@@ -1,0 +1,164 @@
+import { AppProvider, useApp } from "../context/AppContext";
+import FolderTree from "../components/notes/FolderTree";
+import NoteList from "../components/notes/NoteList";
+import NoteEditor from "../components/notes/NoteEditor";
+import ChecklistEditor from "../components/notes/ChecklistEditor";
+import { Cloud, CloudOff, RefreshCw, Plus } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+
+function AppContent() {
+  const {
+    notes,
+    allNotes,
+    folders,
+    selectedNote,
+    selectedFolderId,
+    selectedView,
+    syncStatus,
+    setSelectedNote,
+    setSelectedFolderId,
+    setSelectedView,
+    createNote,
+    updateNote,
+    deleteNote,
+    togglePinNote,
+    createFolder,
+    deleteFolder,
+    syncNow,
+  } = useApp();
+  const { user } = useAuth();
+  const [showNewFolder, setShowNewFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+
+  const handleAddFolder = () => {
+    setShowNewFolder(true);
+    setNewFolderName("");
+  };
+
+  const handleCreateFolder = () => {
+    if (newFolderName.trim()) {
+      createFolder(newFolderName.trim(), null);
+      setShowNewFolder(false);
+      setNewFolderName("");
+    }
+  };
+
+  const handleSelectNote = (id: string) => {
+    const note = notes.find((n) => n.id === id);
+    if (note) setSelectedNote(note);
+  };
+
+  return (
+    <div className="h-screen flex flex-col">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 backdrop-blur-xl bg-white/30 dark:bg-gray-900/30">
+        <div className="flex items-center gap-2">
+          <span className="font-bold">
+            <span className="text-[var(--accent)]">J</span>ournalZ.
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+            {navigator.onLine ? (
+              <Cloud size={14} className="text-green-400" />
+            ) : (
+              <CloudOff size={14} className="text-yellow-400" />
+            )}
+            {syncStatus.lastSynced
+              ? new Date(syncStatus.lastSynced).toLocaleTimeString()
+              : "Not synced"}
+          </div>
+          <button
+            onClick={syncNow}
+            disabled={syncStatus.isSyncing || !user}
+            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            <RefreshCw
+              size={14}
+              className={syncStatus.isSyncing ? "animate-spin" : ""}
+            />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 flex overflow-hidden">
+        <div className="w-64 border-r border-white/10 flex flex-col">
+          <FolderTree
+            folders={folders}
+            notes={allNotes}
+            selectedFolderId={selectedFolderId}
+            selectedView={selectedView}
+            onSelectFolder={setSelectedFolderId}
+            onSelectView={setSelectedView}
+            onAddFolder={handleAddFolder}
+            onDeleteFolder={deleteFolder}
+            onAddNote={createNote}
+          />
+          {showNewFolder && (
+            <div className="p-3 border-t border-white/10">
+              <input
+                type="text"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateFolder()}
+                placeholder="Folder name..."
+                autoFocus
+                className="w-full px-3 py-2 rounded-xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
+              />
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={handleCreateFolder}
+                  className="flex-1 px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white text-xs font-medium cursor-pointer"
+                >
+                  Create
+                </button>
+                <button
+                  onClick={() => setShowNewFolder(false)}
+                  className="px-3 py-1.5 rounded-lg hover:bg-white/10 text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="w-72 border-r border-white/10 overflow-y-auto">
+          <NoteList
+            notes={notes}
+            selectedNoteId={selectedNote?.id || null}
+            onSelectNote={handleSelectNote}
+            onDeleteNote={deleteNote}
+            onTogglePin={togglePinNote}
+          />
+        </div>
+
+        <div className="flex-1 overflow-hidden">
+          {selectedNote ? (
+            selectedNote.type === "checklist" ? (
+              <ChecklistEditor note={selectedNote} onUpdate={updateNote} />
+            ) : (
+              <NoteEditor note={selectedNote} onUpdate={updateNote} />
+            )
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center text-gray-500 p-8">
+              <Plus size={48} className="mb-4 opacity-30" />
+              <p className="text-lg font-medium mb-1">Select or create a note</p>
+              <p className="text-sm">
+                Choose a note from the sidebar or create a new one
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function AppPage() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+}
