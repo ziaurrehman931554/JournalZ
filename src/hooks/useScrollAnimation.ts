@@ -12,7 +12,7 @@ export function useScrollAnimation(threshold = 0.05) {
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
-      { threshold, rootMargin: "80px 0px 80px 0px" }
+      { threshold, rootMargin: "200px 0px 200px 0px" }
     );
 
     observer.observe(el);

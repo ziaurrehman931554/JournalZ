@@ -103,7 +103,7 @@ function AppContent() {
                 onKeyDown={(e) => e.key === "Enter" && handleCreateFolder()}
                 placeholder="Folder name..."
                 autoFocus
-                className="w-full px-3 py-2 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
+                className="w-full px-3 py-2 rounded-xl backdrop-blur-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
               />
               <div className="flex gap-2 mt-2">
                 <button

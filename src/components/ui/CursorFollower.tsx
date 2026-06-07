@@ -42,7 +42,7 @@ export default function CursorFollower() {
         background:
           theme === "dark"
             ? "radial-gradient(circle at center, rgba(96,165,250,0.12) 0%, transparent 70%)"
-            : "radial-gradient(circle at center, rgba(96,165,250,0.08) 0%, transparent 70%)",
+            : "radial-gradient(circle at center, rgba(30,64,175,0.2) 0%, transparent 70%)",
       }}
     />
   );

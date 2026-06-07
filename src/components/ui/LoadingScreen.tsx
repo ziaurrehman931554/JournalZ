@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import logo from "../../assets/logo.png";
 
 interface LoadingScreenProps {
   onFinished: () => void;
@@ -48,9 +49,11 @@ export default function LoadingScreen({ onFinished }: LoadingScreenProps) {
       }`}
     >
       <div className="flex flex-col items-center justify-center flex-1">
-        <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-[var(--accent)]/10 flex items-center justify-center mb-6 animate-float">
-          <span className="text-5xl md:text-6xl font-black text-[var(--accent)]">Z</span>
-        </div>
+        <img
+          src={logo}
+          alt="JournalZ"
+          className="w-24 h-24 md:w-28 md:h-28 object-contain mb-6 animate-float"
+        />
         <h1 className="text-3xl font-bold tracking-tight">
           <span className="text-[var(--accent)]">J</span>ournalZ.
         </h1>

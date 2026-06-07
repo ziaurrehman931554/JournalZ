@@ -44,7 +44,7 @@ export default function AboutPage() {
               <h2 className="text-2xl font-bold text-center mb-12">Our Values</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {values.map(({ icon: Icon, title, desc }) => (
-                  <div key={title} className="p-6 rounded-2xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 h-full flex flex-col">
+                  <div key={title} className="p-6 rounded-2xl backdrop-blur-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 h-full flex flex-col">
                     <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center mb-4">
                       <Icon size={20} className="text-[var(--accent)]" />
                     </div>
@@ -60,7 +60,7 @@ export default function AboutPage() {
         <AnimatedSection>
           <section className="py-16 px-6">
             <div className="max-w-3xl mx-auto text-center">
-              <div className="p-8 rounded-2xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10">
+              <div className="p-8 rounded-2xl backdrop-blur-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10">
                 <ExternalLink size={32} className="mx-auto mb-4 text-[var(--accent)]" />
                 <h2 className="text-2xl font-bold mb-4">Open Source</h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">

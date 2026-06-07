@@ -62,7 +62,7 @@ export default function EmailSignIn({ mode, onToggleMode }: EmailSignInProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full pl-10 pr-4 py-3 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors"
+          className="w-full pl-10 pr-4 py-3 rounded-xl backdrop-blur-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors"
         />
       </div>
       <div className="relative">
@@ -74,7 +74,7 @@ export default function EmailSignIn({ mode, onToggleMode }: EmailSignInProps) {
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={6}
-          className="w-full pl-10 pr-10 py-3 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors"
+          className="w-full pl-10 pr-10 py-3 rounded-xl backdrop-blur-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors"
         />
         <button
           type="button"

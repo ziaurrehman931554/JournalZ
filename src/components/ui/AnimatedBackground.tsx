@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTheme } from "../../context/ThemeContext";
 
 interface Shape {
   el: HTMLDivElement;
@@ -10,6 +11,7 @@ interface Shape {
 }
 
 export default function AnimatedBackground() {
+  const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const shapesRef = useRef<Shape[]>([]);
   const frameRef = useRef<number>(0);
@@ -23,24 +25,26 @@ export default function AnimatedBackground() {
 
     const count = 8;
     const items: Shape[] = [];
+    const isDark = document.documentElement.classList.contains("dark");
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("div");
       const size = 80 + Math.random() * 200;
       const type = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
+      const opacity = isDark ? "33" : "55";
 
       el.style.width = `${size}px`;
       el.style.height = `${size}px`;
       el.style.position = "absolute";
       el.style.borderRadius =
         type === "circle" ? "50%" : type === "rounded" ? "30%" : "60% 40% 30% 70% / 40% 60% 70% 30%";
-      el.style.background = `radial-gradient(circle at 30% 30%, ${colors[i % colors.length]}33, transparent)`;
+      el.style.background = `radial-gradient(circle at 30% 30%, ${colors[i % colors.length]}${opacity}, transparent)`;
       el.style.filter = "blur(60px)";
       el.style.pointerEvents = "none";
       el.style.left = `${Math.random() * 100}%`;
       el.style.top = `${Math.random() * 100}%`;
       el.style.transform = "translate(-50%, -50%)";
-      el.style.opacity = "0.5";
+      el.style.opacity = isDark ? "0.5" : "0.7";
 
       container.appendChild(el);
 
@@ -80,7 +84,7 @@ export default function AnimatedBackground() {
       cancelAnimationFrame(frameRef.current);
       for (const s of items) s.el.remove();
     };
-  }, []);
+  }, [theme]);
 
   return (
     <div

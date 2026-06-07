@@ -11,7 +11,7 @@ export default function Hero() {
         <div className="flex justify-center mb-6">
           <img src={logo} alt="JournalZ" className="w-20 h-20 md:w-24 md:h-24 object-contain animate-float" />
         </div>
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 text-sm mb-8">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 text-sm mb-8">
           <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
           Your thoughts, encrypted & synced
         </div>
@@ -32,7 +32,7 @@ export default function Hero() {
           </Link>
           <Link
             to="/join"
-            className="px-8 py-3.5 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 font-semibold hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
+            className="px-8 py-3.5 rounded-xl backdrop-blur-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 font-semibold hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
           >
             Log in
           </Link>
@@ -48,7 +48,7 @@ export default function Hero() {
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex flex-col items-center gap-2 p-4 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-gray-200/40 dark:border-white/10"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl backdrop-blur-xl bg-blue-50/80 dark:bg-white/5 border border-gray-200/40 dark:border-white/10"
             >
               <Icon size={24} className="text-[var(--accent)]" />
               <span className="text-sm font-medium">{label}</span>
