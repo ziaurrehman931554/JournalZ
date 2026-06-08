@@ -8,6 +8,9 @@ import {
   saveFolderLocally,
   getAllLocalFolders,
   deleteLocalFolder,
+  getAllLocalReminders,
+  saveReminderLocally,
+  deleteLocalReminder,
   syncToFirestore,
   pullFromFirestore,
   addToSyncQueue,
@@ -26,7 +29,7 @@ interface AppContextType {
   setSelectedNote: (note: Note | null) => void;
   setSelectedFolderId: (id: string | null) => void;
   setSelectedView: (view: "notes" | "reminders" | "checklists") => void;
-  createNote: (folderId: string | null, type: "note" | "checklist") => void;
+  createNote: (folderId: string, type: "note" | "checklist") => void;
   updateNote: (note: Note) => void;
   deleteNote: (id: string) => void;
   togglePinNote: (id: string) => void;
@@ -34,10 +37,21 @@ interface AppContextType {
   deleteFolder: (id: string) => void;
   addReminder: (reminder: Reminder) => void;
   deleteReminder: (id: string) => void;
+  completeReminder: (id: string) => void;
   syncNow: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType>({} as AppContextType);
+
+function getAllDescendantFolderIds(folders: Folder[], parentId: string): string[] {
+  const ids: string[] = [parentId];
+  for (const f of folders) {
+    if (f.parentId && ids.includes(f.parentId)) {
+      ids.push(...getAllDescendantFolderIds(folders, f.id));
+    }
+  }
+  return ids;
+}
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -54,12 +68,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   });
 
   const loadLocalData = useCallback(async () => {
-    const [localNotes, localFolders] = await Promise.all([
+    const [localNotes, localFolders, localReminders] = await Promise.all([
       getAllLocalNotes(),
       getAllLocalFolders(),
+      getAllLocalReminders(),
     ]);
     setNotes(localNotes);
     setFolders(localFolders);
+    setReminders(localReminders);
   }, []);
 
   useEffect(() => {
@@ -68,15 +84,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user && navigator.onLine) {
-      pullFromFirestore(user.uid).then(({ notes: fbNotes, folders: fbFolders }) => {
+      pullFromFirestore(user.uid).then(({ notes: fbNotes, folders: fbFolders, reminders: fbReminders }) => {
         if (fbNotes.length) setNotes(fbNotes);
         if (fbFolders.length) setFolders(fbFolders);
+        if (fbReminders.length) setReminders(fbReminders);
       });
     }
   }, [user]);
 
   const createNote = useCallback(
-    async (folderId: string | null, type: "note" | "checklist") => {
+    async (folderId: string, type: "note" | "checklist") => {
       const note: Note = {
         id: crypto.randomUUID(),
         title: "",
@@ -154,19 +171,37 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const deleteFolder = useCallback(
     async (id: string) => {
-      await deleteLocalFolder(id);
-      setFolders((prev) => prev.filter((f) => f.id !== id));
-      setNotes((prev) => prev.map((n) => (n.folderId === id ? { ...n, folderId: null } : n)));
-      if (selectedFolderId === id) setSelectedFolderId(null);
-      if (user) {
-        await addToSyncQueue("folders", id, "delete");
+      const allFolderIds = getAllDescendantFolderIds(folders, id);
+      const noteIdsToDelete = notes
+        .filter((n) => n.folderId && allFolderIds.includes(n.folderId))
+        .map((n) => n.id);
+
+      for (const fid of allFolderIds) {
+        await deleteLocalFolder(fid);
+        if (user) await addToSyncQueue("folders", fid, "delete");
+      }
+
+      for (const nid of noteIdsToDelete) {
+        await deleteLocalNote(nid);
+        if (user) await addToSyncQueue("notes", nid, "delete");
+      }
+
+      setFolders((prev) => prev.filter((f) => !allFolderIds.includes(f.id)));
+      setNotes((prev) => prev.filter((n) => !noteIdsToDelete.includes(n.id)));
+
+      if (selectedFolderId && allFolderIds.includes(selectedFolderId)) {
+        setSelectedFolderId(null);
+      }
+      if (selectedNote && noteIdsToDelete.includes(selectedNote.id)) {
+        setSelectedNote(null);
       }
     },
-    [user, selectedFolderId]
+    [user, selectedFolderId, selectedNote, notes, folders]
   );
 
   const addReminder = useCallback(
     async (reminder: Reminder) => {
+      await saveReminderLocally(reminder);
       setReminders((prev) => [...prev, reminder]);
       if (user) {
         await addToSyncQueue("reminders", reminder.id, "create", reminder);
@@ -177,12 +212,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const deleteReminder = useCallback(
     async (id: string) => {
+      await deleteLocalReminder(id);
       setReminders((prev) => prev.filter((r) => r.id !== id));
       if (user) {
         await addToSyncQueue("reminders", id, "delete");
       }
     },
     [user]
+  );
+
+  const completeReminder = useCallback(
+    async (id: string) => {
+      const reminder = reminders.find((r) => r.id === id);
+      if (reminder) {
+        await addReminder({ ...reminder, isCompleted: !reminder.isCompleted });
+      }
+    },
+    [reminders, addReminder]
   );
 
   const syncNow = useCallback(async () => {
@@ -230,6 +276,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         deleteFolder,
         addReminder,
         deleteReminder,
+        completeReminder,
         syncNow,
       }}
     >

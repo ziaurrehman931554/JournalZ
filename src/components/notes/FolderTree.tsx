@@ -1,22 +1,24 @@
 import { useState } from "react";
-import type { Folder, Note } from "../../types";
-import { Folder as FolderIcon, FileText, CheckSquare, ChevronRight, Plus, Trash2 } from "lucide-react";
+import type { Folder, Note, Reminder } from "../../types";
+import { Folder as FolderIcon, FileText, CheckSquare, Bell, ChevronRight, Plus, Trash2 } from "lucide-react";
 
 interface FolderTreeProps {
   folders: Folder[];
   notes: Note[];
+  reminders: Reminder[];
   selectedFolderId: string | null;
   selectedView: "notes" | "reminders" | "checklists";
   onSelectFolder: (id: string | null) => void;
   onSelectView: (view: "notes" | "reminders" | "checklists") => void;
   onAddFolder: () => void;
   onDeleteFolder: (id: string) => void;
-  onAddNote: (folderId: string | null, type: "note" | "checklist") => void;
+  onAddNote: (folderId: string, type: "note" | "checklist") => void;
 }
 
 export default function FolderTree({
   folders,
   notes,
+  reminders,
   selectedFolderId,
   selectedView,
   onSelectFolder,
@@ -27,15 +29,11 @@ export default function FolderTree({
 }: FolderTreeProps) {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const rootFolders = folders.filter((f) => !f.parentId);
-  const childFolders = (parentId: string) => folders.filter((f) => f.parentId === parentId);
-
-  const countInFolder = (folderId: string | null, type?: "note" | "checklist") => {
-    return notes.filter((n) => n.folderId === folderId && (!type || n.type === type)).length;
-  };
 
   const sidebarItems = [
     { id: "notes" as const, label: "All Notes", icon: FileText, count: notes.length },
     { id: "checklists" as const, label: "Checklists", icon: CheckSquare, count: notes.filter((n) => n.type === "checklist").length },
+    { id: "reminders" as const, label: "Reminders", icon: Bell, count: reminders.length },
   ];
 
   return (
@@ -68,65 +66,112 @@ export default function FolderTree({
 
       <div className="flex-1 overflow-y-auto space-y-0.5">
         {rootFolders.map((folder) => (
-          <div key={folder.id}>
-            <div
-              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all duration-200 cursor-pointer group ${
-                selectedFolderId === folder.id
-                  ? "bg-[var(--accent)]/10 text-[var(--accent)]"
-                  : "hover:bg-white/10"
-              }`}
-            >
-              <button
-                onClick={() => setCollapsed({ ...collapsed, [folder.id]: !collapsed[folder.id] })}
-                className="cursor-pointer"
-              >
-                <ChevronRight
-                  size={14}
-                  className={`transition-transform ${collapsed[folder.id] ? "" : "rotate-90"}`}
-                />
-              </button>
-              <FolderIcon size={16} className="shrink-0" />
-              <span
-                className="flex-1 truncate"
-                onClick={() => onSelectFolder(folder.id)}
-              >
-                {folder.name}
-              </span>
-              <span className="text-xs text-gray-500">{countInFolder(folder.id)}</span>
-              <button
-                onClick={() => onDeleteFolder(folder.id)}
-                className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-500/20 rounded transition-all cursor-pointer"
-              >
-                <Trash2 size={12} className="text-red-400" />
-              </button>
-            </div>
-            {!collapsed[folder.id] &&
-              childFolders(folder.id).map((child) => (
-                <div
-                  key={child.id}
-                  className={`flex items-center gap-2 ml-6 px-3 py-2 rounded-xl text-sm transition-all duration-200 cursor-pointer ${
-                    selectedFolderId === child.id
-                      ? "bg-[var(--accent)]/10 text-[var(--accent)]"
-                      : "hover:bg-white/10"
-                  }`}
-                  onClick={() => onSelectFolder(child.id)}
-                >
-                  <FolderIcon size={16} className="shrink-0" />
-                  <span className="flex-1 truncate">{child.name}</span>
-                  <span className="text-xs text-gray-500">{countInFolder(child.id)}</span>
-                </div>
-              ))}
-          </div>
+          <FolderRow
+            key={folder.id}
+            folder={folder}
+            folders={folders}
+            notes={notes}
+            collapsed={collapsed}
+            selectedFolderId={selectedFolderId}
+            onToggleCollapse={(id) => setCollapsed({ ...collapsed, [id]: !collapsed[id] })}
+            onSelectFolder={onSelectFolder}
+            onDeleteFolder={onDeleteFolder}
+            onAddNote={onAddNote}
+            depth={0}
+          />
         ))}
       </div>
+    </div>
+  );
+}
 
-      <button
-        onClick={() => onAddNote(selectedFolderId, "note")}
-        className="mt-2 flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20 transition-all duration-200 cursor-pointer"
+function FolderRow({
+  folder,
+  folders,
+  notes,
+  collapsed,
+  selectedFolderId,
+  onToggleCollapse,
+  onSelectFolder,
+  onDeleteFolder,
+  onAddNote,
+  depth,
+}: {
+  folder: Folder;
+  folders: Folder[];
+  notes: Note[];
+  collapsed: Record<string, boolean>;
+  selectedFolderId: string | null;
+  onToggleCollapse: (id: string) => void;
+  onSelectFolder: (id: string | null) => void;
+  onDeleteFolder: (id: string) => void;
+  onAddNote: (folderId: string, type: "note" | "checklist") => void;
+  depth: number;
+}) {
+  const children = folders.filter((f) => f.parentId === folder.id);
+  const hasChildren = children.length > 0;
+
+  return (
+    <div>
+      <div
+        className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all duration-200 cursor-pointer group ${
+          selectedFolderId === folder.id
+            ? "bg-[var(--accent)]/10 text-[var(--accent)]"
+            : "hover:bg-white/10"
+        }`}
+        style={{ paddingLeft: `${12 + depth * 16}px` }}
       >
-        <Plus size={16} />
-        New Note
-      </button>
+        {hasChildren ? (
+          <button
+            onClick={() => onToggleCollapse(folder.id)}
+            className="cursor-pointer"
+          >
+            <ChevronRight
+              size={14}
+              className={`transition-transform ${collapsed[folder.id] ? "" : "rotate-90"}`}
+            />
+          </button>
+        ) : (
+          <span className="w-[14px]" />
+        )}
+        <FolderIcon size={16} className="shrink-0" />
+        <span
+          className="flex-1 truncate"
+          onClick={() => onSelectFolder(folder.id)}
+        >
+          {folder.name}
+        </span>
+        <span className="text-xs text-gray-500">{notes.filter((n) => n.folderId === folder.id).length}</span>
+        <button
+          onClick={(e) => { e.stopPropagation(); onAddNote(folder.id, "note"); }}
+          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-[var(--accent)]/20 rounded transition-all cursor-pointer"
+          title="New note"
+        >
+          <Plus size={12} className="text-[var(--accent)]" />
+        </button>
+        <button
+          onClick={() => onDeleteFolder(folder.id)}
+          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-500/20 rounded transition-all cursor-pointer"
+        >
+          <Trash2 size={12} className="text-red-400" />
+        </button>
+      </div>
+      {!collapsed[folder.id] &&
+        children.map((child) => (
+          <FolderRow
+            key={child.id}
+            folder={child}
+            folders={folders}
+            notes={notes}
+            collapsed={collapsed}
+            selectedFolderId={selectedFolderId}
+            onToggleCollapse={onToggleCollapse}
+            onSelectFolder={onSelectFolder}
+            onDeleteFolder={onDeleteFolder}
+            onAddNote={onAddNote}
+            depth={depth + 1}
+          />
+        ))}
     </div>
   );
 }
