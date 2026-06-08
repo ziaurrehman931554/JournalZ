@@ -21,7 +21,7 @@ export default function ShareBanner() {
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-lg animate-fade-in-up">
-      <div className="rounded-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-white/30 dark:border-white/10 shadow-xl px-5 py-4 flex items-start gap-3">
+      <div className="rounded-2xl backdrop-blur-xl bg-[var(--surface-bg)] border border-white/30 dark:border-white/10 shadow-xl px-5 py-4 flex items-start gap-3">
         <Share2 size={18} className="text-[var(--accent)] shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">
@@ -40,7 +40,7 @@ export default function ShareBanner() {
         </div>
         <button
           onClick={dismiss}
-          className="p-1 rounded-lg hover:bg-white/20 transition-colors cursor-pointer shrink-0"
+          className="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0"
         >
           <X size={16} />
         </button>

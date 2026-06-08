@@ -1,61 +1,74 @@
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Pen, Shield, Cloud, Bell, CheckSquare, Layers } from "lucide-react";
-import AnimatedSection from "../ui/AnimatedSection";
-import logo from "../../assets/logo.png";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Hero() {
+  const { user } = useAuth();
+
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-16 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/5 via-transparent to-[var(--accent)]/5 pointer-events-none" />
-      <AnimatedSection className="relative z-10 text-center max-w-4xl mx-auto">
-        <div className="flex justify-center mb-6">
-          <img src={logo} alt="JournalZ" className="w-20 h-20 md:w-24 md:h-24 object-contain animate-float" />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/5 via-transparent to-purple-500/5" />
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-[var(--accent)]/10 rounded-full blur-3xl animate-float" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-float-delayed" />
+
+      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 mb-8 animate-slide-down">
+          <Sparkles size={16} className="text-[var(--accent)]" />
+          <span className="text-sm text-gray-600 dark:text-gray-400">Your Intelligent Journaling Companion</span>
         </div>
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 text-sm mb-8">
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          Your thoughts, encrypted & synced
-        </div>
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-          Write with{" "}
-          <span className="text-[var(--accent)]">Peace of Mind</span>
+
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+          <span className="text-gray-900 dark:text-white">Capture Your</span>
+          <br />
+          <span className="bg-gradient-to-r from-[var(--accent)] to-purple-500 bg-clip-text text-transparent">
+            Thoughts Beautifully
+          </span>
         </h1>
-        <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-          JournalZ is a privacy-first notes app with end-to-end encryption,
-          offline support, smart reminders, and seamless cloud sync.
+
+        <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">
+          JournalZ combines the elegance of note-taking with intelligent reminders,
+          checklists, and organization tools — all wrapped in a stunning, modern interface.
         </p>
-        <div className="flex flex-wrap gap-4 justify-center mb-16">
+
+        <div className="flex items-center justify-center gap-4">
+          {user ? (
+            <Link
+              to="/app"
+              className="group inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-[var(--accent)] text-white font-medium transition-all duration-300 hover:scale-105 active:scale-95"
+            >
+              Go to App
+              <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              className="group inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-[var(--accent)] text-white font-medium transition-all duration-300 hover:scale-105 active:scale-95"
+            >
+              Get Started Free
+              <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+            </Link>
+          )}
           <Link
-            to="/join"
-            className="px-8 py-3.5 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90 transition-all duration-200 shadow-lg shadow-[var(--accent)]/25"
+            to="/about"
+            className="px-8 py-3 rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 font-medium transition-all duration-300 hover:scale-105 active:scale-95"
           >
-            Start Writing Free
-          </Link>
-          <Link
-            to="/join"
-            className="px-8 py-3.5 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 font-semibold hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
-          >
-            Log in
+            Learn More
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-3xl mx-auto">
+
+        <div className="mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto">
           {[
-            { icon: Shield, label: "Encrypted" },
-            { icon: Cloud, label: "Cloud Sync" },
-            { icon: Bell, label: "Reminders" },
-            { icon: CheckSquare, label: "Checklists" },
-            { icon: Layers, label: "Folders" },
-            { icon: Pen, label: "Rich Notes" },
-          ].map(({ icon: Icon, label }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center gap-2 p-4 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10"
-            >
-              <Icon size={24} className="text-[var(--accent)]" />
-              <span className="text-sm font-medium">{label}</span>
+            { value: "10K+", label: "Active Users" },
+            { value: "50K+", label: "Notes Created" },
+            { value: "4.9★", label: "User Rating" },
+          ].map((stat) => (
+            <div key={stat.label} className="text-center">
+              <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</div>
+              <div className="text-sm text-gray-500">{stat.label}</div>
             </div>
           ))}
         </div>
-      </AnimatedSection>
+      </div>
     </section>
   );
 }

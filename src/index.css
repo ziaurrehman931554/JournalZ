@@ -4,7 +4,21 @@
 
 :root {
   color-scheme: light dark;
-  --accent: #818cf8;
+  --page-bg: #FBF9F1;
+  --surface-bg: #E5E1DA;
+  --elevated-bg: #AAD7D9;
+  --accent: #92C7CF;
+  background-color: var(--page-bg);
+  color: #1c1c1e;
+}
+
+.dark {
+  --page-bg: #0d0d0d;
+  --surface-bg: #1a1a1a;
+  --elevated-bg: #2a2a2a;
+  --accent: #52525b;
+  background-color: var(--page-bg);
+  color: #e5e5e5;
 }
 
 body {
@@ -38,16 +52,6 @@ html {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
-}
-
-.dark {
-  background-color: #0a0a0f;
-  color: #e5e5e5;
-}
-
-.light {
-  background-color: #f5f5f5;
-  color: #1a1a1a;
 }
 
 /* Hover pop: subtle scale on hover */
@@ -107,6 +111,22 @@ li {
 @keyframes iosSpin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-down {
+  animation: slideDown 0.2s ease-out;
 }
 
 @keyframes fadeInUp {

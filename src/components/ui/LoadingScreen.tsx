@@ -44,7 +44,7 @@ export default function LoadingScreen({ onFinished }: LoadingScreenProps) {
     <div
       className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-700 ${
         visible
-          ? "opacity-100 scale-100 backdrop-blur-2xl bg-white/80 dark:bg-[#0a0a0f]/90"
+          ? "opacity-100 scale-100 backdrop-blur-2xl bg-[var(--surface-bg)]"
           : "opacity-0 scale-110 pointer-events-none"
       }`}
     >

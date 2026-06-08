@@ -20,8 +20,8 @@ export default function AnimatedBackground() {
     const container = containerRef.current;
     if (!container) return;
 
-    const darkColors = ["var(--accent)", "#818cf8", "#a78bfa", "#6366f1", "#8b5cf6"];
-    const lightColors = ["#1e40af", "#2563eb", "#4f46e5", "#7c3aed", "#4338ca"];
+    const darkColors = ["#151515", "#181818", "#1c1c1c"];
+    const lightColors = ["#92C7CF", "#AAD7D9", "#E5E1DA"];
     const shapeTypes = ["circle", "rounded", "blob"];
 
     const count = 8;
@@ -34,20 +34,20 @@ export default function AnimatedBackground() {
       const el = document.createElement("div");
       const size = 80 + Math.random() * 200;
       const type = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
-      const opacity = isDark ? "55" : "bb";
+      const color = colors[i % colors.length];
 
       el.style.width = `${size}px`;
       el.style.height = `${size}px`;
       el.style.position = "absolute";
       el.style.borderRadius =
         type === "circle" ? "50%" : type === "rounded" ? "30%" : "60% 40% 30% 70% / 40% 60% 70% 30%";
-      el.style.background = `radial-gradient(circle at 30% 30%, ${colors[i % colors.length]}${opacity}, transparent)`;
+      el.style.background = `radial-gradient(circle at 30% 30%, ${color}, transparent)`;
       el.style.filter = "blur(60px)";
       el.style.pointerEvents = "none";
       el.style.left = `${Math.random() * 100}%`;
       el.style.top = `${Math.random() * 100}%`;
       el.style.transform = "translate(-50%, -50%)";
-      el.style.opacity = isDark ? "0.7" : "1";
+      el.style.opacity = isDark ? "0.2" : "0.5";
 
       container.appendChild(el);
 

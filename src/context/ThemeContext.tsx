@@ -12,7 +12,7 @@ type ThemeContextType = {
   toLight: () => void;
 };
 
-const DEFAULT_ACCENT = "#818cf8";
+const DEFAULT_ACCENT = "#92C7CF";
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: "dark",
@@ -54,7 +54,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--accent", accentColor);
+    if (accentColor !== DEFAULT_ACCENT) {
+      document.documentElement.style.setProperty("--accent", accentColor);
+    } else {
+      document.documentElement.style.removeProperty("--accent");
+    }
     localStorage.setItem("journalz-accent", accentColor);
   }, [accentColor]);
 

@@ -38,10 +38,10 @@ export default function NoteList({
         <div
           key={note.id}
           onClick={() => onSelectNote(note.id)}
-          className={`group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
+          className={`group flex items-start gap-3 p-3 rounded-xl hover-pop cursor-pointer transition-all duration-200 ${
             selectedNoteId === note.id
               ? "bg-[var(--accent)]/10 border border-[var(--accent)]/20"
-              : "hover:bg-white/10 border border-transparent"
+              : "hover:bg-black/5 dark:hover:bg-white/10 border border-transparent"
           }`}
         >
           <div className="mt-0.5">
@@ -67,7 +67,7 @@ export default function NoteList({
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={(e) => { e.stopPropagation(); onTogglePin(note.id); }}
-              className="p-1 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+              className="p-1 hover:bg-black/5 dark:hover:bg-white/10 hover-pop rounded-lg transition-colors cursor-pointer"
             >
               <Pin size={14} className={note.isPinned ? "text-[var(--accent)]" : ""} />
             </button>

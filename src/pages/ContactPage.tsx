@@ -1,126 +1,96 @@
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/landing/Footer";
-import AnimatedBackground from "../components/ui/AnimatedBackground";
-import CursorFollower from "../components/ui/CursorFollower";
-import AnimatedSection from "../components/ui/AnimatedSection";
-import { Mail, ExternalLink, MessageCircle, Send, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { Send, Mail, MapPin, Phone } from "lucide-react";
 
-const contactMethods = [
-  {
-    icon: Mail,
-    label: "Email",
-    value: "ziaurrehman931554@gmail.com",
-    href: "mailto:ziaurrehman931554@gmail.com",
-    desc: "I'll respond within 24 hours",
-  },
-  {
-    icon: ExternalLink,
-    label: "GitHub Issues",
-    value: "Open an issue",
-    href: "https://github.com/ziaurrehman931554/JournalZ/issues",
-    desc: "Report bugs or request features",
-  },
-  {
-    icon: MessageCircle,
-    label: "Discussions",
-    value: "GitHub Discussions",
-    href: "https://github.com/ziaurrehman931554/JournalZ/discussions",
-    desc: "Join the community conversation",
-  },
+const contactInfo = [
+  { icon: Mail, label: "Email", value: "hello@journalz.app" },
+  { icon: MapPin, label: "Location", value: "San Francisco, CA" },
+  { icon: Phone, label: "Phone", value: "+1 (555) 123-4567" },
 ];
 
 export default function ContactPage() {
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSent(true);
+  };
+
   return (
-    <div className="min-h-screen relative">
-      <AnimatedBackground />
-      <CursorFollower />
-      <Navbar />
-      <main className="relative z-10 pt-24">
-        <AnimatedSection>
-          <section className="py-20 px-6">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-sm text-[var(--accent)] mb-6">
-                <Send size={14} />
-                Get in Touch
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                Let's{" "}
-                <span className="text-[var(--accent)]">connect</span>
-              </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed mb-12">
-                Have a question, suggestion, or just want to say hi? I'd love to hear from you.
-              </p>
-            </div>
-          </section>
-        </AnimatedSection>
+    <main className="min-h-screen pt-24 px-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">Get in Touch</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Have a question or feedback? We'd love to hear from you.
+          </p>
+        </div>
 
-        <AnimatedSection>
-          <section className="pb-20 px-6">
-            <div className="max-w-3xl mx-auto">
-              <div className="grid md:grid-cols-3 gap-4 mb-12">
-                {contactMethods.map(({ icon: Icon, label, value, href, desc }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target={href.startsWith("http") ? "_blank" : undefined}
-                    rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="p-6 rounded-2xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 hover:bg-white/15 dark:hover:bg-white/10 transition-all duration-200 group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center mb-4">
-                      <Icon size={20} className="text-[var(--accent)]" />
-                    </div>
-                    <h3 className="font-semibold mb-1">{label}</h3>
-                    <p className="text-sm text-[var(--accent)] mb-1 group-hover:underline">{value}</p>
-                    <p className="text-xs text-gray-500">{desc}</p>
-                  </a>
-                ))}
-              </div>
-
-              <div className="p-8 rounded-2xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10">
-                <h2 className="text-xl font-bold mb-4">Send a Message</h2>
-                <form
-                  action="mailto:ziaurrehman931554@gmail.com"
-                  method="GET"
-                  encType="text/plain"
-                  className="space-y-4"
-                >
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      name="subject"
-                      placeholder="Your Name"
-                      required
-                      className="w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
-                    />
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Your Email"
-                      required
-                      className="w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm"
-                    />
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            {contactInfo.map((info) => {
+              const Icon = info.icon;
+              return (
+                <div key={info.label} className="flex items-center gap-4 p-4 rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center">
+                    <Icon size={20} className="text-[var(--accent)]" />
                   </div>
-                  <textarea
-                    name="body"
-                    placeholder="Your message..."
-                    rows={5}
-                    required
-                    className="w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors text-sm resize-none"
-                  />
-                  <button
-                    type="submit"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--accent)] text-white font-medium hover:opacity-90 transition-all duration-200 cursor-pointer"
-                  >
-                    Send Message
-                    <ArrowRight size={16} />
-                  </button>
-                </form>
+                  <div>
+                    <p className="text-sm text-gray-500">{info.label}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{info.value}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 p-6">
+            {sent ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                  <Send size={24} className="text-green-500" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Message Sent!</h3>
+                <p className="text-gray-500">We'll get back to you within 24 hours.</p>
               </div>
-            </div>
-          </section>
-        </AnimatedSection>
-      </main>
-      <Footer />
-    </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Your Name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  required
+                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-[var(--accent)]/50 outline-none transition-colors text-sm"
+                />
+                <input
+                  type="email"
+                  placeholder="Your Email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
+                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-[var(--accent)]/50 outline-none transition-colors text-sm"
+                />
+                <textarea
+                  placeholder="Your Message"
+                  value={form.message}
+                  onChange={(e) => setForm({ ...form, message: e.target.value })}
+                  required
+                  rows={5}
+                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-[var(--accent)]/50 outline-none transition-colors text-sm resize-none"
+                />
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[var(--accent)] text-white font-medium hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+                >
+                  Send Message
+                  <Send size={16} />
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }

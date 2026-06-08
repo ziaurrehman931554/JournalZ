@@ -30,12 +30,14 @@ export interface Folder {
 
 export interface Reminder {
   id: string;
-  noteId: string;
+  noteId?: string;
   title: string;
-  description?: string;
+  description: string;
   dueDate: number;
   isCompleted: boolean;
   createdAt: number;
+  location?: string;
+  tags?: string[];
 }
 
 export interface UserProfile {

@@ -71,7 +71,7 @@ export default function EmailSignIn({ mode, onToggleMode }: EmailSignInProps) {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="relative w-20 h-20 rounded-full overflow-hidden bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 cursor-pointer group"
+              className="relative w-20 h-20 rounded-full overflow-hidden bg-[var(--surface-bg)] hover-pop transition-all duration-200 border border-gray-200/40 dark:border-white/10 cursor-pointer group"
             >
               {profilePic ? (
                 <img src={profilePic} alt="" className="w-full h-full object-cover" />
@@ -86,7 +86,7 @@ export default function EmailSignIn({ mode, onToggleMode }: EmailSignInProps) {
             </button>
             <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
           </div>
-          <div className="relative">
+          <div className="relative backdrop-blur-xl bg-[var(--surface-bg)] rounded-xl border border-gray-200/40 dark:border-white/10">
             <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -94,12 +94,12 @@ export default function EmailSignIn({ mode, onToggleMode }: EmailSignInProps) {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              className="w-full pl-10 pr-4 py-3 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors"
+              className="w-full pl-10 pr-4 py-3 outline-none focus:border-[var(--accent)] transition-colors"
             />
           </div>
         </>
       )}
-      <div className="relative">
+      <div className="relative backdrop-blur-xl bg-[var(--surface-bg)] rounded-xl border border-gray-200/40 dark:border-white/10">
         <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           type="email"
@@ -107,10 +107,10 @@ export default function EmailSignIn({ mode, onToggleMode }: EmailSignInProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full pl-10 pr-4 py-3 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors"
+          className="w-full pl-10 pr-4 py-3 outline-none focus:border-[var(--accent)] transition-colors"
         />
       </div>
-      <div className="relative">
+      <div className="relative backdrop-blur-xl bg-[var(--surface-bg)] rounded-xl border border-gray-200/40 dark:border-white/10">
         <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           type={showPassword ? "text" : "password"}
@@ -119,7 +119,7 @@ export default function EmailSignIn({ mode, onToggleMode }: EmailSignInProps) {
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={6}
-          className="w-full pl-10 pr-10 py-3 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 outline-none focus:border-[var(--accent)] transition-colors"
+          className="w-full pl-10 pr-10 py-3 outline-none focus:border-[var(--accent)] transition-colors"
         />
         <button
           type="button"

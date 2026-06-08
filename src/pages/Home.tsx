@@ -5,7 +5,6 @@ import About from "../components/landing/About";
 import FAQ from "../components/landing/FAQ";
 import Footer from "../components/landing/Footer";
 import AnimatedBackground from "../components/ui/AnimatedBackground";
-import CursorFollower from "../components/ui/CursorFollower";
 import ScrollToTop from "../components/ui/ScrollToTop";
 import ShareBanner from "../components/ui/ShareBanner";
 
@@ -13,7 +12,6 @@ export default function Home() {
   return (
     <div className="min-h-screen relative">
       <AnimatedBackground />
-      <CursorFollower />
       <Navbar />
       <main className="relative z-10">
         <Hero />

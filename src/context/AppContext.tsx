@@ -202,7 +202,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addReminder = useCallback(
     async (reminder: Reminder) => {
       await saveReminderLocally(reminder);
-      setReminders((prev) => [...prev, reminder]);
+      setReminders((prev) => {
+        const exists = prev.find((r) => r.id === reminder.id);
+        if (exists) return prev.map((r) => (r.id === reminder.id ? reminder : r));
+        return [...prev, reminder];
+      });
       if (user) {
         await addToSyncQueue("reminders", reminder.id, "create", reminder);
       }

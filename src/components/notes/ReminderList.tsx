@@ -71,12 +71,12 @@ function ReminderItem({
           ? "opacity-50"
           : isOverdue
             ? "bg-red-500/5 border border-red-500/10"
-            : "hover:bg-white/10"
+            : "hover:bg-black/5 dark:hover:bg-white/10"
       }`}
     >
       <button
         onClick={() => onComplete(reminder.id)}
-        className="mt-0.5 cursor-pointer"
+        className="mt-0.5 hover-pop cursor-pointer"
       >
         <CheckCircle
           size={16}

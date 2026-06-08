@@ -1,78 +1,43 @@
-import { Heart, ExternalLink, Mail, Globe } from "lucide-react";
-import logo from "../../assets/logo.png";
-
-const links = [
-  { label: "Features", href: "/#features" },
-  { label: "FAQ", href: "/#faq" },
-  { label: "About", href: "/#about" },
-  { label: "Contact", href: "mailto:ziaurrehman931554@gmail.com" },
-  { label: "GitHub", href: "https://github.com/ziaurrehman931554/JournalZ" },
-];
+import { Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="py-16 px-6 border-t border-white/10">
+    <footer className="border-t border-white/10 px-6 py-8">
       <div className="max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-3 gap-10 mb-10">
+        <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="flex items-center gap-2.5 font-bold text-xl mb-4">
-              <img src={logo} alt="JournalZ" className="w-8 h-8 object-contain" />
-              <span className="text-[var(--accent)]">J</span>ournalZ.
-            </div>
-            <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
-              A privacy-first notes app with end-to-end encryption, offline support, and smart reminders.
+            <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">JournalZ</h3>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Your intelligent journaling companion for capturing thoughts beautifully.
             </p>
           </div>
           <div>
-            <h4 className="font-semibold text-sm mb-4">Links</h4>
-            <ul className="space-y-2">
-              {links.map((l) => (
-                <li key={l.label}>
-                  <a
-                    href={l.href}
-                    target={l.href.startsWith("http") ? "_blank" : undefined}
-                    rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="text-sm text-gray-500 hover:text-[var(--accent)] transition-colors"
-                  >
-                    {l.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Product</h4>
+            <div className="space-y-2 text-sm text-gray-500">
+              <Link to="/features" className="block hover:text-[var(--accent)] transition-colors">Features</Link>
+              <Link to="/pricing" className="block hover:text-[var(--accent)] transition-colors">Pricing</Link>
+              <Link to="/about" className="block hover:text-[var(--accent)] transition-colors">About</Link>
+            </div>
           </div>
           <div>
-            <h4 className="font-semibold text-sm mb-4">Connect</h4>
-            <div className="flex gap-3">
-              <a
-                href="https://github.com/ziaurrehman931554/JournalZ"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
-              >
-                <ExternalLink size={18} />
-              </a>
-              <a
-                href="mailto:ziaurrehman931554@gmail.com"
-                className="p-2.5 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
-              >
-                <Mail size={18} />
-              </a>
-              <a
-                href="/"
-                className="p-2.5 rounded-xl backdrop-blur-xl bg-blue-100/80 hover-pop transition-all duration-200 dark:bg-white/5 border border-gray-200/40 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
-              >
-                <Globe size={18} />
-              </a>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Support</h4>
+            <div className="space-y-2 text-sm text-gray-500">
+              <Link to="/faq" className="block hover:text-[var(--accent)] transition-colors">FAQ</Link>
+              <Link to="/contact" className="block hover:text-[var(--accent)] transition-colors">Contact</Link>
+              <a href="#" className="block hover:text-[var(--accent)] transition-colors">Documentation</a>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Legal</h4>
+            <div className="space-y-2 text-sm text-gray-500">
+              <a href="#" className="block hover:text-[var(--accent)] transition-colors">Privacy Policy</a>
+              <a href="#" className="block hover:text-[var(--accent)] transition-colors">Terms of Service</a>
             </div>
           </div>
         </div>
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-gray-500 flex items-center gap-1">
-            Made with <Heart size={14} className="text-red-400" /> for privacy lovers
-          </p>
-          <p className="text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} JournalZ. All rights reserved.
-          </p>
+        <div className="border-t border-white/10 pt-6 flex items-center justify-center gap-1 text-sm text-gray-500">
+          Made with <Heart size={14} className="text-red-500 fill-red-500" /> by JournalZ Team. All rights reserved.
         </div>
       </div>
     </footer>

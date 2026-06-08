@@ -26,7 +26,7 @@ export default function Sidebar({ children }: SidebarProps) {
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer"
+            className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 cursor-pointer"
           >
             {collapsed ? <Menu size={16} /> : <ChevronLeft size={16} />}
           </button>

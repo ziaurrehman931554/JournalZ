@@ -8,6 +8,7 @@ import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingScreen from "./components/ui/LoadingScreen";
+import CursorFollower from "./components/ui/CursorFollower";
 
 function App() {
   const [ready, setReady] = useState(false);
@@ -16,6 +17,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <CursorFollower />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/join" element={<Join />} />
