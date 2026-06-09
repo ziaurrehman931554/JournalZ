@@ -9,37 +9,50 @@ interface NoteEditorProps {
 }
 
 export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
+  const [text, setText] = useState(note.title + (note.content ? "\n" + note.content : ""));
   const [title, setTitle] = useState(note.title);
-  const [content, setContent] = useState(note.content);
   const [checklist, setChecklist] = useState<ChecklistItem[]>(note.checklist || []);
   const [preview, setPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [newItemText, setNewItemText] = useState("");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setText(note.title + (note.content ? "\n" + note.content : ""));
     setTitle(note.title);
-    setContent(note.content);
     setChecklist(note.checklist || []);
     setPreview(false);
-    titleRef.current?.focus();
+    textareaRef.current?.focus();
   }, [note.id]);
 
   const scheduleSave = useCallback(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       setSaving(true);
-      onUpdate({
-        ...note,
-        title,
-        content,
-        checklist: note.type === "checklist" ? checklist : undefined,
-        updatedAt: Date.now(),
-      });
+      if (note.type === "checklist") {
+        onUpdate({
+          ...note,
+          title,
+          content: "",
+          checklist,
+          updatedAt: Date.now(),
+        });
+      } else {
+        const lines = text.split("\n");
+        const newTitle = lines[0] || "";
+        const newContent = lines.slice(1).join("\n");
+        onUpdate({
+          ...note,
+          title: newTitle,
+          content: newContent,
+          updatedAt: Date.now(),
+        });
+      }
       setTimeout(() => setSaving(false), 400);
     }, 800);
-  }, [note, title, content, checklist, onUpdate]);
+  }, [note, text, title, checklist, onUpdate]);
 
   useEffect(() => {
     return () => {
@@ -84,7 +97,7 @@ export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
 
   if (note.type === "checklist") {
     return (
-      <div className="h-full flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full">
+      <div className="h-full flex flex-col p-4">
         <div className="flex items-center gap-3 mb-6">
           <input
             ref={titleRef}
@@ -154,20 +167,12 @@ export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
   }
 
   return (
-    <div className="h-full flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full">
-      <div className="flex items-center gap-3 mb-6">
-        <input
-          ref={titleRef}
-          type="text"
-          value={title}
-          onChange={(e) => { setTitle(e.target.value); scheduleSave(); }}
-          placeholder="Note title..."
-          className="flex-1 text-2xl font-bold bg-transparent outline-none placeholder-gray-500"
-        />
-        <div className="flex items-center gap-2">
+    <div className="h-full flex flex-col">
+      <div className="flex items-center gap-2 shrink-0 px-3 py-2 border-b border-white/10">
+        <div className="flex items-center gap-2 ml-auto">
           <button
             onClick={() => setPreview(!preview)}
-              className={`text-xs px-3 py-1 rounded-lg transition-colors cursor-pointer hover-pop ${
+            className={`text-xs px-3 py-1 rounded-lg transition-colors cursor-pointer hover-pop ${
               preview
                 ? "bg-[var(--accent)] text-white border border-[var(--accent)]"
                 : "border border-white/10 hover:border-[var(--accent)]/30"
@@ -180,17 +185,28 @@ export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto p-4">
         {preview ? (
           <div className="prose prose-sm dark:prose-invert max-w-none">
-            <ReactMarkdown>{content}</ReactMarkdown>
+            {(() => {
+              const lines = text.split("\n");
+              const title = lines[0] || "";
+              const body = lines.slice(1).join("\n");
+              return (
+                <>
+                  <h1>{title || "Untitled"}</h1>
+                  <ReactMarkdown>{body}</ReactMarkdown>
+                </>
+              );
+            })()}
           </div>
         ) : (
           <textarea
-            value={content}
-            onChange={(e) => { setContent(e.target.value); scheduleSave(); }}
+            ref={textareaRef}
+            value={text}
+            onChange={(e) => { setText(e.target.value); scheduleSave(); }}
             placeholder="Start writing..."
-            className="w-full h-full bg-transparent outline-none resize-none text-sm leading-relaxed placeholder-gray-500"
+            className="w-full h-full bg-transparent outline-none resize-none text-base leading-relaxed placeholder-gray-500"
           />
         )}
       </div>
