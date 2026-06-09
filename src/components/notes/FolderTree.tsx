@@ -24,7 +24,6 @@ interface FolderTreeProps {
   onSelectView: (view: "notes" | "checklists" | "reminders") => void;
   onAddFolder: (parentId: string | null) => void;
   onDeleteFolder: (id: string) => void;
-  onAddReminder: () => void;
   onSelectNote: (id: string) => void;
   onOpenCreateMenu: (e: React.MouseEvent, folderId: string) => void;
   onOpenBrowse: (type: "notes" | "checklists" | "reminders", folderId: string | null) => void;
@@ -50,7 +49,6 @@ export default function FolderTree({
   onSelectView,
   onAddFolder,
   onDeleteFolder,
-  onAddReminder,
   onSelectNote,
   onOpenCreateMenu,
   onOpenBrowse,

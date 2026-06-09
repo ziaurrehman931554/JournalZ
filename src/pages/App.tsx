@@ -229,16 +229,6 @@ function AppContent() {
           onSelectView={(view) => setSelectedView(view)}
           onAddFolder={handleAddFolder}
           onDeleteFolder={deleteFolder}
-          onAddReminder={() => {
-            setEditingReminder({
-              id: crypto.randomUUID(),
-              title: "",
-              description: "",
-              dueDate: Date.now() + 86400000,
-              isCompleted: false,
-              createdAt: Date.now(),
-            });
-          }}
           onSelectNote={handleSelectNote}
           onOpenCreateMenu={handleOpenCreateMenu}
           onOpenBrowse={handleOpenBrowse}
