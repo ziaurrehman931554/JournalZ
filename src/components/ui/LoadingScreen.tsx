@@ -6,25 +6,17 @@ interface LoadingScreenProps {
 }
 
 function IOSpinner() {
-  const segments = 12;
   return (
     <div className="relative w-10 h-10">
-      {Array.from({ length: segments }).map((_, i) => (
-        <div
-          key={i}
-          className="absolute top-0 left-1/2 -translate-x-1/2 origin-[50%_20px]"
-          style={{ transform: `rotate(${i * 30}deg)` }}
-        >
-          <div
-            className="w-[3px] h-[9px] rounded-full bg-[var(--accent)]"
-            style={{
-              opacity: 0.2 + (i / segments) * 0.8,
-              animation: `iosSpin 1s linear infinite`,
-              animationDelay: `${(i / segments) * -1}s`,
-            }}
-          />
-        </div>
-      ))}
+      <svg className="w-10 h-10 animate-spin" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.1" className="text-[var(--accent)]" />
+        <path
+          d="M12 2a10 10 0 0 1 10 10"
+          stroke="var(--accent)"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+      </svg>
     </div>
   );
 }

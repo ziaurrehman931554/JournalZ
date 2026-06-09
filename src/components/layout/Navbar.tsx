@@ -1,11 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import ThemeToggle from "../ui/ThemeToggle";
+import GlassSurface from "../GlassSurface";
 import { LogOut, User, ExternalLink, LogIn } from "lucide-react";
 import logo from "../../assets/logo.png";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -23,9 +26,9 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-4 left-4 right-4 z-50">
-      <div className="rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 shadow-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
+      <GlassSurface borderRadius={16} dark={theme === "dark"}>
+        <div className="w-full max-w-7xl h-12 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5 hover:scale-105 active:scale-95 transition-all duration-200">
             <img src={logo} alt="JournalZ" className="w-8 h-8 object-contain" />
             <span className="font-bold text-lg">
               <span className="text-[var(--accent)]">J</span>ournalZ.
@@ -44,7 +47,7 @@ export default function Navbar() {
                     href={l.href}
                     target={l.href.startsWith("http") ? "_blank" : undefined}
                     rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-black/5 dark:hover:bg-white/10 hover:scale-105 active:scale-95 transition-all duration-200"
                   >
                     {Icon && <Icon size={14} />}
                     {l.label}
@@ -56,7 +59,7 @@ export default function Navbar() {
                   <Link
                     key={l.label}
                     to={l.href}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-black/5 dark:hover:bg-white/10 hover:scale-105 active:scale-95 transition-all duration-200"
                   >
                     {l.label}
                   </Link>
@@ -66,7 +69,7 @@ export default function Navbar() {
                 <a
                   key={l.label}
                   href={l.href}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-black/5 dark:hover:bg-white/10 hover:scale-105 active:scale-95 transition-all duration-200"
                 >
                   {l.label}
                 </a>
@@ -80,7 +83,7 @@ export default function Navbar() {
               <>
                 <Link
                   to="/app"
-                  className="hidden sm:inline-flex px-4 py-2 rounded-xl bg-[var(--accent)] text-white font-medium text-sm hover:opacity-90 transition-all duration-200"
+                  className="hidden sm:inline-flex px-4 py-2 rounded-xl bg-[var(--accent)] text-white font-medium text-sm hover:scale-105 active:scale-95 transition-all duration-200"
                 >
                   My Notes
                 </Link>
@@ -96,7 +99,7 @@ export default function Navbar() {
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="p-2 rounded-xl hover:bg-red-500/20 transition-all duration-200 cursor-pointer"
+                  className="p-2 rounded-xl hover:bg-red-500/20 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
                   title="Sign out"
                 >
                   <LogOut size={16} className="text-red-400" />
@@ -106,14 +109,14 @@ export default function Navbar() {
               <>
                 <Link
                   to="/join"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[var(--accent)] hover:bg-black/5 dark:hover:bg-white/10 hover:scale-105 active:scale-95 transition-all duration-200"
                 >
                   <LogIn size={14} />
                   Log in
                 </Link>
                 <Link
                   to="/join"
-                  className="px-4 py-2 rounded-xl bg-[var(--accent)] text-white font-medium text-sm hover:opacity-90 transition-all duration-200"
+                  className="px-4 py-2 rounded-xl bg-[var(--accent)] text-white font-medium text-sm hover:scale-105 active:scale-95 transition-all duration-200"
                 >
                   Join for Free
                 </Link>
@@ -121,7 +124,7 @@ export default function Navbar() {
             )}
           </div>
         </div>
-      </div>
+      </GlassSurface>
     </nav>
   );
 }

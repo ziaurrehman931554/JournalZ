@@ -8,6 +8,8 @@
   --surface-bg: #E5E1DA;
   --elevated-bg: #AAD7D9;
   --accent: #92C7CF;
+  --glow-1: rgba(146, 199, 207, 0.12);
+  --glow-2: rgba(170, 215, 217, 0.08);
   background-color: var(--page-bg);
   color: #1c1c1e;
 }
@@ -17,6 +19,8 @@
   --surface-bg: #1a1a1a;
   --elevated-bg: #2a2a2a;
   --accent: #52525b;
+  --glow-1: rgba(82, 82, 91, 0.12);
+  --glow-2: rgba(60, 60, 70, 0.08);
   background-color: var(--page-bg);
   color: #e5e5e5;
 }
@@ -200,6 +204,16 @@ li {
   padding-left: 1rem;
   color: #888;
 }
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+}
+
 .Tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;

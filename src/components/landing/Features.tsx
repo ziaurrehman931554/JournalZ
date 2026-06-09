@@ -58,13 +58,15 @@ export default function Features() {
             return (
               <div
                 key={feature.title}
-                className="group p-6 rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 hover:border-[var(--accent)]/30 transition-all duration-300 hover:scale-105"
+                className="group hover:scale-105 transition-all duration-300 rounded-2xl border border-white/30 dark:border-white/10 bg-[var(--surface-bg)]/60 backdrop-blur-xl"
               >
+                <div className="p-6">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                   <Icon size={24} className="text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+                </div>
               </div>
             );
           })}

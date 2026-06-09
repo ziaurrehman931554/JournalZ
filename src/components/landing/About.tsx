@@ -41,10 +41,7 @@ export default function About() {
             </p>
             <div className="flex flex-wrap gap-3">
               {["Note-Taking", "Task Management", "Reminders", "Organization", "Privacy", "Speed"].map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 text-sm rounded-full backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 text-gray-700 dark:text-gray-300"
-                >
+                <span key={tag} className="block px-3 py-1 text-sm rounded-full border border-[var(--accent)]/30 bg-[var(--surface-bg)]/60 backdrop-blur-xl text-gray-700 dark:text-gray-300 hover:scale-105 active:scale-95 transition-all duration-200">
                   {tag}
                 </span>
               ))}
@@ -57,13 +54,15 @@ export default function About() {
               return (
                 <div
                   key={value.title}
-                  className="p-6 rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 hover:border-[var(--accent)]/30 transition-all duration-300"
+                  className="hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 rounded-2xl border border-white/30 dark:border-white/10 bg-[var(--surface-bg)]/60 backdrop-blur-xl"
                 >
-                  <div className="flex gap-4">
-                    <Icon size={24} className={`${value.color} shrink-0 mt-1`} />
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{value.title}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{value.description}</p>
+                  <div className="p-6">
+                    <div className="flex gap-4">
+                      <Icon size={24} className={`${value.color} shrink-0 mt-1`} />
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{value.title}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{value.description}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
