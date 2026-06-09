@@ -1,6 +1,8 @@
 import type { Note, Folder, Reminder } from "../../types";
 import { FileText, CheckSquare, Bell, Folder as FolderIcon, Search, X, Pin, Clock, MapPin } from "lucide-react";
 import { useState } from "react";
+import { useTheme } from "../../context/ThemeContext";
+import GlassSurface from "../GlassSurface";
 
 interface BrowsePanelProps {
   type: "notes" | "checklists" | "reminders";
@@ -33,6 +35,7 @@ export default function BrowsePanel({
   onSelectReminder,
   onClose,
 }: BrowsePanelProps) {
+  const { theme } = useTheme();
   const [search, setSearch] = useState("");
 
   let title = type === "notes" ? "All Notes" : type === "checklists" ? "Checklists" : "Reminders";
@@ -66,8 +69,9 @@ export default function BrowsePanel({
   const sortedReminders = [...reminders].filter(reminderFilter).sort((a, b) => a.dueDate - b.dueDate);
 
   return (
-    <div className="h-full flex flex-col backdrop-blur-2xl bg-[var(--surface-bg)] shadow-xl rounded-2xl">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+    <GlassSurface borderRadius={16} width="100%" height="100%" dark={theme === "dark"} padding={0}>
+      <div className="h-full flex flex-col">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
         <h2 className="font-semibold text-sm">{title}</h2>
         <button onClick={onClose} className="p-1 rounded-lg hover:bg-[var(--elevated-bg)]/50 hover-pop transition-colors cursor-pointer">
           <X size={16} />
@@ -180,6 +184,7 @@ export default function BrowsePanel({
           )
         )}
       </div>
-    </div>
+      </div>
+    </GlassSurface>
   );
 }

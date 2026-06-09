@@ -108,7 +108,7 @@ export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
             >
               <button
                 onClick={() => moveItem(index, "up")}
-                className="p-0.5 hover:bg-white/10 rounded cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                className="p-0.5 hover:bg-white/10 rounded cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity hover-pop"
                 disabled={index === 0}
               >
                 <GripVertical size={14} className="text-gray-500" />
@@ -128,7 +128,7 @@ export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
               </span>
               <button
                 onClick={() => deleteChecklistItem(item.id)}
-                className="p-1 hover:bg-red-500/20 rounded cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                className="p-1 hover:bg-red-500/20 rounded cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity hover-pop"
               >
                 <Trash2 size={14} className="text-red-400" />
               </button>
@@ -167,10 +167,10 @@ export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setPreview(!preview)}
-            className={`text-xs px-3 py-1 rounded-lg border transition-colors cursor-pointer ${
+              className={`text-xs px-3 py-1 rounded-lg transition-colors cursor-pointer hover-pop ${
               preview
-                ? "bg-[var(--accent)] text-white border-[var(--accent)]"
-                : "border-white/10 hover:border-[var(--accent)]/30"
+                ? "bg-[var(--accent)] text-white border border-[var(--accent)]"
+                : "border border-white/10 hover:border-[var(--accent)]/30"
             }`}
           >
             {preview ? "Edit" : "Preview"}

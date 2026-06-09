@@ -84,7 +84,7 @@ export default function ChecklistEditor({ note, onUpdate }: ChecklistEditorProps
           <div key={item.id} className="flex items-center gap-3 group py-1">
             <button
               onClick={() => toggleItem(item.id)}
-              className={`shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 cursor-pointer ${
+              className={`shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 cursor-pointer hover-pop ${
                 item.checked
                   ? "bg-[var(--accent)] border-[var(--accent)]"
                   : "border-gray-500 hover:border-[var(--accent)]"
@@ -102,7 +102,7 @@ export default function ChecklistEditor({ note, onUpdate }: ChecklistEditorProps
             />
             <button
               onClick={() => deleteItem(item.id)}
-              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded transition-all cursor-pointer"
+              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded transition-all cursor-pointer hover-pop"
             >
               <Trash2 size={14} className="text-red-400" />
             </button>
@@ -121,7 +121,7 @@ export default function ChecklistEditor({ note, onUpdate }: ChecklistEditorProps
           />
           <button
             onClick={addItem}
-            className="px-4 py-2.5 rounded-xl bg-[var(--accent)] text-white font-medium hover:opacity-90 transition-all duration-200 cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-[var(--accent)] text-white font-medium hover:opacity-90 transition-all duration-200 cursor-pointer hover-pop"
           >
             <Plus size={16} />
           </button>
