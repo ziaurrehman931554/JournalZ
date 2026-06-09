@@ -368,7 +368,7 @@ function AppContent() {
 
       {(browseOpen || browseClosing) && (
         <>
-          <div className={`absolute top-3 left-3 bottom-3 w-80 z-20 rounded-2xl bg-[var(--surface-bg)]/20 ${browseClosing ? "animate-blur-out" : "animate-blur-in"}`} />
+          <div className={`absolute top-3 left-3 bottom-3 w-80 z-20 rounded-2xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] ${browseClosing ? "animate-fade-out" : "animate-fade-in"}`} />
           <div className={`absolute top-3 left-3 bottom-3 w-80 z-30 rounded-2xl overflow-hidden shadow-2xl ${browseClosing ? "animate-slide-out" : "animate-slide-in"}`}>
           <BrowsePanel
             type={browseType}

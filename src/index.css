@@ -149,24 +149,6 @@ li {
 .animate-fade-in-up {
   animation: fadeInUp 0.5s ease-out;
 }
-.animate-blur-in {
-  animation: blurIn 0.2s ease-out forwards;
-}
-
-@keyframes blurIn {
-  from { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
-  to { opacity: 1; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
-}
-
-.animate-blur-out {
-  animation: blurOut 0.2s ease-in forwards;
-}
-
-@keyframes blurOut {
-  from { opacity: 1; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
-  to { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
-}
-
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out;
 }
