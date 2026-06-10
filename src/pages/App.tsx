@@ -308,7 +308,7 @@ function AppContent() {
           )}
         </div>
 
-        <div className="flex-1 overflow-hidden rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 shadow-xl">
+        <div className="flex-1 overflow-hidden rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)]/60 border border-white/10 shadow-xl">
           {showReminderList && editingReminder ? (
             <ReminderEditor
               reminder={editingReminder}
@@ -319,7 +319,7 @@ function AppContent() {
             selectedNote.type === "checklist" ? (
               <ChecklistEditor note={selectedNote} onUpdate={updateNote} />
             ) : (
-              <NoteEditor note={selectedNote} onUpdate={updateNote} />
+              <NoteEditor note={selectedNote} onUpdate={updateNote} onClose={() => setSelectedNote(null)} />
             )
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-gray-500 p-8">

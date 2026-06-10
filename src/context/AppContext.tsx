@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import type { Note, Folder, Reminder, SyncStatus } from "../types";
 import {
   saveNoteLocally,
@@ -78,6 +78,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setReminders(localReminders);
   }, []);
 
+  const syncTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const autoSync = useCallback(async () => {
+    if (!user || !navigator.onLine) return;
+    if (syncTimer.current) clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(async () => {
+      try {
+        await syncToFirestore(user.uid);
+        const remote = await pullFromFirestore(user.uid);
+        if (remote.notes.length) setNotes(remote.notes);
+        if (remote.folders.length) setFolders(remote.folders);
+        if (remote.reminders.length) setReminders(remote.reminders);
+      } catch {
+        // auto-sync failed silently; queue will retry next time
+      }
+    }, 1500);
+  }, [user]);
+
   useEffect(() => {
     loadLocalData();
   }, [loadLocalData]);
@@ -112,9 +130,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setSelectedNote(note);
       if (user) {
         await addToSyncQueue("notes", note.id, "create", note);
+        await autoSync();
       }
     },
-    [user]
+    [user, autoSync]
   );
 
   const updateNote = useCallback(
@@ -124,9 +143,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setSelectedNote(note);
       if (user) {
         await addToSyncQueue("notes", note.id, "update", note);
+        await autoSync();
       }
     },
-    [user]
+    [user, autoSync]
   );
 
   const deleteNote = useCallback(
@@ -136,9 +156,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (selectedNote?.id === id) setSelectedNote(null);
       if (user) {
         await addToSyncQueue("notes", id, "delete");
+        await autoSync();
       }
     },
-    [user, selectedNote]
+    [user, selectedNote, autoSync]
   );
 
   const togglePinNote = useCallback(
@@ -164,9 +185,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setFolders((prev) => [...prev, folder]);
       if (user) {
         await addToSyncQueue("folders", folder.id, "create", folder);
+        await autoSync();
       }
     },
-    [user]
+    [user, autoSync]
   );
 
   const deleteFolder = useCallback(
@@ -186,6 +208,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (user) await addToSyncQueue("notes", nid, "delete");
       }
 
+      if (user) await autoSync();
+
       setFolders((prev) => prev.filter((f) => !allFolderIds.includes(f.id)));
       setNotes((prev) => prev.filter((n) => !noteIdsToDelete.includes(n.id)));
 
@@ -196,7 +220,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setSelectedNote(null);
       }
     },
-    [user, selectedFolderId, selectedNote, notes, folders]
+    [user, selectedFolderId, selectedNote, notes, folders, autoSync]
   );
 
   const addReminder = useCallback(
@@ -209,9 +233,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       });
       if (user) {
         await addToSyncQueue("reminders", reminder.id, "create", reminder);
+        await autoSync();
       }
     },
-    [user]
+    [user, autoSync]
   );
 
   const deleteReminder = useCallback(
@@ -220,9 +245,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setReminders((prev) => prev.filter((r) => r.id !== id));
       if (user) {
         await addToSyncQueue("reminders", id, "delete");
+        await autoSync();
       }
     },
-    [user]
+    [user, autoSync]
   );
 
   const completeReminder = useCallback(

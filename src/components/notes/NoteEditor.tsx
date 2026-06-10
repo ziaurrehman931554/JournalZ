@@ -1,62 +1,109 @@
 import type { Note, ChecklistItem } from "../../types";
+import { Plus, Trash2, GripVertical, X, MoreHorizontal, Check, Loader, AlertCircle, Lock, Share2, Search, Pin } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Save, Plus, Trash2, GripVertical } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import { useTheme } from "../../context/ThemeContext";
+import GlassSurface from "../GlassSurface";
 
 interface NoteEditorProps {
   note: Note;
   onUpdate: (note: Note) => void;
+  onClose?: () => void;
 }
 
-export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
+export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps) {
+  const { theme } = useTheme();
   const [text, setText] = useState(note.title + (note.content ? "\n" + note.content : ""));
   const [title, setTitle] = useState(note.title);
   const [checklist, setChecklist] = useState<ChecklistItem[]>(note.checklist || []);
-  const [preview, setPreview] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [newItemText, setNewItemText] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [displayStatus, setDisplayStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuClosing, setMenuClosing] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const moreBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setText(note.title + (note.content ? "\n" + note.content : ""));
     setTitle(note.title);
     setChecklist(note.checklist || []);
-    setPreview(false);
+    setSaveStatus("idle");
+    setDisplayStatus("idle");
+    setShowMenu(false);
+    setMenuClosing(false);
     textareaRef.current?.focus();
   }, [note.id]);
 
+  useEffect(() => {
+    if (saveStatus !== "idle") {
+      setDisplayStatus(saveStatus);
+    } else {
+      const t = setTimeout(() => setDisplayStatus("idle"), 150);
+      return () => clearTimeout(t);
+    }
+  }, [saveStatus]);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (showMenu &&
+          menuRef.current && !menuRef.current.contains(e.target as Node) &&
+          moreBtnRef.current && !moreBtnRef.current.contains(e.target as Node)) {
+        closeMenu();
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showMenu]);
+
+  const closeMenu = () => {
+    setMenuClosing(true);
+    setTimeout(() => {
+      setShowMenu(false);
+      setMenuClosing(false);
+    }, 150);
+  };
+
   const scheduleSave = useCallback(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      setSaving(true);
-      if (note.type === "checklist") {
-        onUpdate({
-          ...note,
-          title,
-          content: "",
-          checklist,
-          updatedAt: Date.now(),
-        });
-      } else {
-        const lines = text.split("\n");
-        const newTitle = lines[0] || "";
-        const newContent = lines.slice(1).join("\n");
-        onUpdate({
-          ...note,
-          title: newTitle,
-          content: newContent,
-          updatedAt: Date.now(),
-        });
+    setSaveStatus("saving");
+    saveTimer.current = setTimeout(async () => {
+      try {
+        if (note.type === "checklist") {
+          await onUpdate({
+            ...note,
+            title,
+            content: "",
+            checklist,
+            updatedAt: Date.now(),
+          });
+        } else {
+          const lines = text.split("\n");
+          const newTitle = lines[0] || "";
+          const newContent = lines.slice(1).join("\n");
+          await onUpdate({
+            ...note,
+            title: newTitle,
+            content: newContent,
+            updatedAt: Date.now(),
+          });
+        }
+        setSaveStatus("saved");
+        if (hideTimer.current) clearTimeout(hideTimer.current);
+        hideTimer.current = setTimeout(() => setSaveStatus("idle"), 2000);
+      } catch {
+        setSaveStatus("error");
       }
-      setTimeout(() => setSaving(false), 400);
     }, 800);
   }, [note, text, title, checklist, onUpdate]);
 
   useEffect(() => {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
+      if (hideTimer.current) clearTimeout(hideTimer.current);
     };
   }, []);
 
@@ -95,6 +142,16 @@ export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
     scheduleSave();
   };
 
+  const firstLine = text.split("\n")[0] || "";
+
+  const menuItems = [
+    { icon: Lock, label: "Lock" },
+    { icon: Share2, label: "Share" },
+    { icon: Trash2, label: "Delete", danger: true },
+    { icon: Search, label: "Find in notes" },
+    { icon: Pin, label: "Pin" },
+  ];
+
   if (note.type === "checklist") {
     return (
       <div className="h-full flex flex-col p-4">
@@ -107,10 +164,6 @@ export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
             placeholder="Checklist title..."
             className="flex-1 text-2xl font-bold bg-transparent outline-none placeholder-gray-500"
           />
-          <div className="flex items-center gap-2">
-            {saving && <span className="text-xs text-gray-500 animate-pulse">Saving...</span>}
-            <Save size={16} className="text-gray-500" />
-          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto space-y-1">
@@ -167,48 +220,122 @@ export default function NoteEditor({ note, onUpdate }: NoteEditorProps) {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center gap-2 shrink-0 px-3 py-2 border-b border-white/10">
-        <div className="flex items-center gap-2 ml-auto">
-          <button
-            onClick={() => setPreview(!preview)}
-            className={`text-xs px-3 py-1 rounded-lg transition-colors cursor-pointer hover-pop ${
-              preview
-                ? "bg-[var(--accent)] text-white border border-[var(--accent)]"
-                : "border border-white/10 hover:border-[var(--accent)]/30"
-            }`}
-          >
-            {preview ? "Edit" : "Preview"}
-          </button>
-          {saving && <span className="text-xs text-gray-500 animate-pulse">Saving...</span>}
-          <Save size={16} className="text-gray-500" />
+    <div className="relative h-full flex flex-col">
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-16 pt-3">
+        <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
+            <div className="relative z-20">
+          <GlassSurface borderRadius={9999} width="auto" height="auto" dark={theme === "dark"} padding={0}>
+            <button
+              onClick={onClose}
+              className="flex items-center justify-center p-2 rounded-full cursor-pointer hover-pop"
+            >
+              <X size={22} />
+            </button>
+          </GlassSurface>
+            </div>
+          </div>
+
+        <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
+            <div className="relative z-20">
+          <GlassSurface borderRadius={9999} width="auto" height="auto" dark={theme === "dark"} padding={0}>
+            <span className="block px-6 py-2 text-base font-medium truncate max-w-[400px] rounded-full hover-pop cursor-default">
+              {firstLine || "Untitled"}
+            </span>
+          </GlassSurface>
+            </div>
+          </div>
+
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 flex items-center justify-center">
+            {displayStatus !== "idle" && (
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-full bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
+                  <div className="relative z-20">
+              <GlassSurface
+                borderRadius={9999}
+                width="auto"
+                height="auto"
+                dark={theme === "dark"}
+                padding={0}
+                className={saveStatus === "idle" ? "animate-scale-out" : "animate-scale-in"}
+              >
+                <div className="p-2">
+                  {displayStatus === "saving" && (
+                    <Loader size={16} className="text-gray-400 animate-spin" />
+                  )}
+                  {displayStatus === "saved" && (
+                    <Check size={16} className="text-green-400" />
+                  )}
+                  {displayStatus === "error" && (
+                    <AlertCircle size={16} className="text-red-400" />
+                  )}
+                </div>
+              </GlassSurface>
+                  </div>
+                </div>
+            )}
+          </div>
+
+          <div className="relative">
+            <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
+                <div className="relative z-20">
+            <GlassSurface borderRadius={9999} width="auto" height="auto" dark={theme === "dark"} padding={0}>
+              <button
+                ref={moreBtnRef}
+                onClick={() => showMenu ? closeMenu() : setShowMenu(true)}
+                className="flex items-center justify-center p-2 rounded-full cursor-pointer hover-pop"
+              >
+                <MoreHorizontal size={22} />
+              </button>
+            </GlassSurface>
+                </div>
+              </div>
+
+            {(showMenu || menuClosing) && (
+              <div className={`absolute right-0 top-full mt-2 min-w-[180px] ${menuClosing ? "animate-menu-out" : "animate-menu-in"}`}>
+                <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
+                <div className="relative z-20">
+              <GlassSurface
+                ref={menuRef}
+                borderRadius={12}
+                width="auto"
+                height="auto"
+                dark={theme === "dark"}
+                padding={0}
+              >
+                <div className="py-1">
+                  {menuItems.map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={closeMenu}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover-pop cursor-pointer ${
+                        item.danger ? "text-red-400 hover:bg-red-500/10" : "hover:bg-white/5"
+                      }`}
+                    >
+                      <item.icon size={16} />
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </GlassSurface>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        {preview ? (
-          <div className="prose prose-sm dark:prose-invert max-w-none">
-            {(() => {
-              const lines = text.split("\n");
-              const title = lines[0] || "";
-              const body = lines.slice(1).join("\n");
-              return (
-                <>
-                  <h1>{title || "Untitled"}</h1>
-                  <ReactMarkdown>{body}</ReactMarkdown>
-                </>
-              );
-            })()}
-          </div>
-        ) : (
-          <textarea
-            ref={textareaRef}
-            value={text}
-            onChange={(e) => { setText(e.target.value); scheduleSave(); }}
-            placeholder="Start writing..."
-            className="w-full h-full bg-transparent outline-none resize-none text-base leading-relaxed placeholder-gray-500"
-          />
-        )}
+      <div className="flex-1 pl-16">
+        <textarea
+          ref={textareaRef}
+          value={text}
+          onChange={(e) => { setText(e.target.value); scheduleSave(); }}
+          placeholder="Start writing..."
+          className="w-full h-full bg-transparent outline-none resize-none text-base leading-relaxed placeholder-gray-500 pt-20 pr-16"
+        />
       </div>
     </div>
   );

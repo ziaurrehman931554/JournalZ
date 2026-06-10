@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useId } from 'react';
+import React, { useEffect, useRef, useState, useId, useCallback } from 'react';
 
 export interface GlassSurfaceProps {
   children?: React.ReactNode;
@@ -43,7 +43,7 @@ export interface GlassSurfaceProps {
   dark?: boolean;
 }
 
-const GlassSurface: React.FC<GlassSurfaceProps> = ({
+const GlassSurface = React.forwardRef<HTMLDivElement, GlassSurfaceProps>(({
   children,
   width = '100%',
   height = '100%',
@@ -66,7 +66,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   style = {},
   dark: darkProp,
   padding = 8,
-}) => {
+}, ref) => {
   const uniqueId = useId().replace(/:/g, '-');
   const filterId = `glass-filter-${uniqueId}`;
   const redGradId = `red-grad-${uniqueId}`;
@@ -76,6 +76,11 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   const [systemDark, setSystemDark] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    if (typeof ref === 'function') ref(node);
+    else if (ref && node) (ref as React.MutableRefObject<HTMLDivElement>).current = node;
+  }, [ref]);
   const feImageRef = useRef<SVGFEImageElement>(null);
   const redChannelRef = useRef<SVGFEDisplacementMapElement>(null);
   const greenChannelRef = useRef<SVGFEDisplacementMapElement>(null);
@@ -184,6 +189,9 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
     } as React.CSSProperties;
 
     const backdropFilterSupported = supportsBackdropFilter();
+    const bg = backgroundOpacity > 0
+      ? (isDark ? `rgba(0, 0, 0, ${backgroundOpacity})` : `rgba(255, 255, 255, ${backgroundOpacity})`)
+      : null;
 
     if (svgSupported) {
       return {
@@ -214,18 +222,18 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
       if (!backdropFilterSupported) {
         return {
           ...baseStyles,
-          background: 'rgba(0, 0, 0, 0.4)',
-          border: '1px solid rgba(96, 165, 250, 0.15)',
+          background: bg ?? 'rgba(0, 0, 0, 0.4)',
+          border: '1px solid transparent',
           boxShadow: `inset 0 1px 0 0 rgba(96, 165, 250, 0.1),
                       inset 0 -1px 0 0 rgba(96, 165, 250, 0.05)`,
         };
       }
       return {
         ...baseStyles,
-        background: 'rgba(255, 255, 255, 0.1)',
+        background: bg ?? 'rgba(0, 0, 0, 0.15)',
         backdropFilter: 'blur(12px) saturate(1.8) brightness(1.2)',
         WebkitBackdropFilter: 'blur(12px) saturate(1.8) brightness(1.2)',
-        border: '1px solid rgba(96, 165, 250, 0.15)',
+        border: '1px solid transparent',
         boxShadow: `inset 0 1px 0 0 rgba(96, 165, 250, 0.1),
                     inset 0 -1px 0 0 rgba(96, 165, 250, 0.05)`,
       };
@@ -234,27 +242,25 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
     if (!backdropFilterSupported) {
       return {
         ...baseStyles,
-        background: 'rgba(255, 255, 255, 0.4)',
-        border: '1px solid rgba(59, 130, 246, 0.15)',
-        boxShadow: `inset 0 1px 0 0 rgba(59, 130, 246, 0.15),
-                    inset 0 -1px 0 0 rgba(59, 130, 246, 0.08)`,
+        background: bg ?? 'rgba(255, 255, 255, 0.4)',
+        border: '1px solid transparent',
+        boxShadow: `inset 0 1px 0 0 rgba(0, 0, 0, 0.04),
+                    inset 0 -1px 0 0 rgba(0, 0, 0, 0.02)`,
       };
     }
     return {
       ...baseStyles,
-      background: 'rgba(255, 255, 255, 0.25)',
+      background: bg ?? 'rgba(255, 255, 255, 0.15)',
       backdropFilter: 'blur(12px) saturate(1.8) brightness(1.1)',
       WebkitBackdropFilter: 'blur(12px) saturate(1.8) brightness(1.1)',
-      border: '1px solid rgba(59, 130, 246, 0.15)',
-      boxShadow: `0 8px 32px 0 rgba(31, 38, 135, 0.2),
-                  0 2px 16px 0 rgba(31, 38, 135, 0.1),
-                  inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
-                  inset 0 -1px 0 0 rgba(255, 255, 255, 0.2)`,
+      border: '1px solid transparent',
+      boxShadow: `inset 0 1px 0 0 rgba(0, 0, 0, 0.04),
+                  inset 0 -1px 0 0 rgba(0, 0, 0, 0.02)`,
     };
   };
 
   const glassSurfaceClasses =
-    'relative flex items-center justify-center overflow-hidden transition-opacity duration-[260ms] ease-out';
+    'flex items-center justify-center overflow-hidden transition-opacity duration-[260ms] ease-out';
 
   const focusVisibleClasses = isDark
     ? 'focus-visible:outline-2 focus-visible:outline-[#0A84FF] focus-visible:outline-offset-2'
@@ -262,7 +268,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
 
   return (
     <div
-      ref={containerRef}
+      ref={setRef}
       className={`${glassSurfaceClasses} ${focusVisibleClasses} ${className}`}
       style={getContainerStyles()}
     >
@@ -320,6 +326,8 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
       </div>
     </div>
   );
-};
+});
+
+GlassSurface.displayName = 'GlassSurface';
 
 export default GlassSurface;
