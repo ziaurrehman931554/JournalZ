@@ -78,7 +78,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setReminders(localReminders);
   }, []);
 
-  const syncTimer = useRef<ReturnType<typeof setTimeout>>();
+  const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const autoSync = useCallback(async () => {
     if (!user || !navigator.onLine) return;
