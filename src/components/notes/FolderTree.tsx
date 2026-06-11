@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { Folder, Note, Reminder } from "../../types";
 import GlassSurface from "../GlassSurface";
 import { useTheme } from "../../context/ThemeContext";
@@ -58,7 +57,6 @@ export default function FolderTree({
   onOpenCreateMenu,
   onOpenBrowse,
 }: FolderTreeProps) {
-  const [remindersExpanded, setRemindersExpanded] = useState(true);
   if (collapsed) {
     const rootFolders = folders.filter((f) => !f.parentId);
     return (
@@ -119,7 +117,8 @@ export default function FolderTree({
     const isCollapsed = collapsedFolders[folder.id] ?? true;
     const subfolders = folders.filter((f) => f.parentId === folder.id);
     const folderNotes = notes.filter((n) => n.folderId === folder.id);
-    const totalItems = folderNotes.length + subfolders.reduce((sum, sf) => sum + countItems(sf), 0);
+    const folderReminders = reminders.filter((r) => r.folderId === folder.id);
+    const totalItems = folderNotes.length + folderReminders.length + subfolders.reduce((sum, sf) => sum + countItems(sf), 0);
 
     return (
       <div key={folder.id}>
@@ -159,7 +158,7 @@ export default function FolderTree({
         {!isCollapsed && (
           <div className="overflow-hidden">
             {subfolders.map((sf) => renderFolder(sf, depth + 1))}
-            {folderNotes.length > 0 && (
+            {(folderNotes.length > 0 || folderReminders.length > 0) && (
               <div className="pt-0.5">
                 {folderNotes.map((note) => (
                   <div
@@ -176,6 +175,24 @@ export default function FolderTree({
                     <span className="truncate text-gray-700 dark:text-gray-300">{note.title || "Untitled"}</span>
                   </div>
                 ))}
+                {folderReminders.map((r) => (
+                  <div
+                    key={r.id}
+                    className={`flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer rounded-lg transition-all duration-200 animate-slide-down ${
+                      selectedReminderId === r.id ? "bg-[var(--accent)]/10 font-medium" : "hover:bg-[var(--elevated-bg)]/50"
+                    } hover-pop`}
+                    style={{ paddingLeft: `${12 + (depth + 1) * 16}px` }}
+                    onClick={(e) => { e.stopPropagation(); onSelectReminder(r.id); }}
+                  >
+                    <Bell size={14} className="shrink-0 text-yellow-400" />
+                    <span className="truncate text-gray-700 dark:text-gray-300">{r.title || "Reminder"}</span>
+                    <span className="ml-auto text-xs text-gray-500 shrink-0">
+                      {r.dueDate > Date.now()
+                        ? new Date(r.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                        : "Overdue"}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -187,7 +204,8 @@ export default function FolderTree({
   const countItems = (folder: Folder): number => {
     const subfolders = folders.filter((f) => f.parentId === folder.id);
     const folderNotes = notes.filter((n) => n.folderId === folder.id);
-    return folderNotes.length + subfolders.reduce((sum, sf) => sum + countItems(sf), 0);
+    const folderReminders = reminders.filter((r) => r.folderId === folder.id);
+    return folderNotes.length + folderReminders.length + subfolders.reduce((sum, sf) => sum + countItems(sf), 0);
   };
 
   return (
@@ -213,43 +231,15 @@ export default function FolderTree({
           <span>Checklists</span>
           <span className="ml-auto text-xs text-gray-500">{notes.filter((n) => n.type === "checklist").length}</span>
         </div>
-        <div>
-          <div
-            className={`flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer rounded-lg transition-all duration-200 ${
-              selectedView === "reminders" ? "bg-[var(--accent)]/10 font-medium" : "hover:bg-[var(--elevated-bg)]/50"
-            } hover-pop`}
-            onClick={(e) => { e.stopPropagation(); setRemindersExpanded(!remindersExpanded); onOpenBrowse("reminders", null); }}
-          >
-            <ChevronRight
-              size={14}
-              className={`transition-transform duration-200 ${remindersExpanded ? "rotate-90" : ""}`}
-            />
-            <Bell size={14} className="text-yellow-400" />
-            <span>Reminders</span>
-            <span className="ml-auto text-xs text-gray-500">{reminders.length}</span>
-          </div>
-          {remindersExpanded && reminders.length > 0 && (
-            <div className="pt-0.5">
-              {reminders.map((r) => (
-                <div
-                  key={r.id}
-                  className={`flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer rounded-lg transition-all duration-200 animate-slide-down ${
-                    selectedReminderId === r.id ? "bg-[var(--accent)]/10 font-medium" : "hover:bg-[var(--elevated-bg)]/50"
-                  } hover-pop`}
-                  style={{ paddingLeft: `${12 + 16}px` }}
-                  onClick={(e) => { e.stopPropagation(); onSelectReminder(r.id); }}
-                >
-                  <Bell size={14} className="shrink-0 text-yellow-400" />
-                  <span className="truncate text-gray-700 dark:text-gray-300">{r.title || "Untitled"}</span>
-                  <span className="ml-auto text-xs text-gray-500 shrink-0">
-                    {r.dueDate > Date.now()
-                      ? new Date(r.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })
-                      : "Overdue"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+        <div
+          className={`flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer rounded-lg transition-all duration-200 ${
+            selectedView === "reminders" ? "bg-[var(--accent)]/10 font-medium" : "hover:bg-[var(--elevated-bg)]/50"
+          } hover-pop`}
+          onClick={() => onOpenBrowse("reminders", null)}
+        >
+          <Bell size={14} className="text-yellow-400" />
+          <span>Reminders</span>
+          <span className="ml-auto text-xs text-gray-500">{reminders.length}</span>
         </div>
       </div>
 

@@ -33,6 +33,7 @@ export interface Folder {
 export interface Reminder {
   id: string;
   noteId?: string;
+  folderId?: string;
   title: string;
   description: string;
   dueDate: number;

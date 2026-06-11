@@ -138,6 +138,7 @@ function AppContent() {
     const r = reminders.find((rem) => rem.id === id);
     if (r) {
       setEditingReminder(r);
+      setSelectedView("reminders");
       setBrowseOpen(false);
       setBrowseClosing(false);
     }
@@ -367,6 +368,7 @@ function AppContent() {
             else if (type === "reminder") {
               setEditingReminder({
                 id: crypto.randomUUID(),
+                folderId: fid || undefined,
                 title: "",
                 description: "",
                 dueDate: Date.now() + 86400000,
