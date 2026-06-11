@@ -276,3 +276,13 @@ li {
   pointer-events: none;
   height: 0;
 }
+
+.ProseMirror {
+  min-height: 100%;
+  outline: none;
+} 
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #6b7280;
+  pointer-events: none;
+  height: 0;
+}
