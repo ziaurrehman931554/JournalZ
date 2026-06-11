@@ -103,11 +103,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user && navigator.onLine) {
-      pullFromFirestore(user.uid).then(({ notes: fbNotes, folders: fbFolders, reminders: fbReminders }) => {
-        setNotes(fbNotes);
-        setFolders(fbFolders);
-        setReminders(fbReminders);
-      });
+      (async () => {
+        try {
+          await syncToFirestore(user.uid);
+          const remote = await pullFromFirestore(user.uid);
+          setNotes(remote.notes);
+          setFolders(remote.folders);
+          setReminders(remote.reminders);
+        } catch {
+          // pull failed, local data remains
+        }
+      })();
     } else if (!user) {
       clearAllLocalData().then(() => {
         setNotes([]);
