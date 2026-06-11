@@ -283,7 +283,7 @@ li {
 }
 
 .ProseMirror {
-  min-height: calc(100% + 300px);
+  min-height: calc(100% + 600px);
   outline: none;
 }
 .ProseMirror p.is-editor-empty:first-child::before {
