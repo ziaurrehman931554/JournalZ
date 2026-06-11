@@ -153,6 +153,9 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
   const [tableCols, setTableCols] = useState(3);
   const [showCustomFont, setShowCustomFont] = useState(false);
   const [customFont, setCustomFont] = useState("");
+  const [fontFamilyPos, setFontFamilyPos] = useState({ left: 0, top: 0 });
+  const [fontSizePos, setFontSizePos] = useState({ left: 0, top: 0 });
+  const [tableDialogPos, setTableDialogPos] = useState({ left: 0, top: 0 });
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -567,8 +570,8 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
         <EditorContent editor={editor} className="Tiptap min-h-full" />
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 z-10 px-16 pb-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+      <div className="absolute bottom-0 left-0 right-0 z-10 px-16 pb-3 flex justify-center">
+        <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full">
           <GlassBtn
             title="Bold"
             active={editor?.isActive("bold") ?? false}
@@ -621,63 +624,21 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
 
           <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
 
-          <div className="relative">
-            <div ref={tableBtnRef}>
-              <GlassBtn
-                title="Insert Table"
-                active={inTable}
-                onClick={() => showTableDialog ? closeTableDialog() : setShowTableDialog(true)}
-              >
-                <Table size={15} />
-              </GlassBtn>
-            </div>
-
-            {(showTableDialog || tableDialogClosing) && (
-              <div
-                ref={tableDialogRef}
-                className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 min-w-[200px] ${tableDialogClosing ? "animate-menu-out" : "animate-menu-in"}`}
-                style={{ transformOrigin: "bottom center" }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
-                <div className="relative z-20">
-                  <GlassSurface borderRadius={12} width="auto" height="auto" dark={theme === "dark"} padding={0}>
-                    <div className="p-3 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <label className="text-xs text-gray-400 w-16">Rows:</label>
-                        <input
-                          type="number"
-                          min={1}
-                          max={20}
-                          value={tableRows}
-                          onChange={(e) => setTableRows(Math.max(1, parseInt(e.target.value) || 1))}
-                          className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
-                        />
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <label className="text-xs text-gray-400 w-16">Columns:</label>
-                        <input
-                          type="number"
-                          min={1}
-                          max={20}
-                          value={tableCols}
-                          onChange={(e) => setTableCols(Math.max(1, parseInt(e.target.value) || 1))}
-                          className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
-                        />
-                      </div>
-                      <button
-                        onClick={() => {
-                          editor?.chain().focus().insertTable({ rows: tableRows, cols: tableCols, withHeaderRow: true }).run();
-                          closeTableDialog();
-                        }}
-                        className="w-full text-xs bg-[var(--accent)]/20 hover:bg-[var(--accent)]/30 text-[var(--accent)] rounded-lg px-3 py-1.5 cursor-pointer transition-colors"
-                      >
-                        Create Table
-                      </button>
-                    </div>
-                  </GlassSurface>
-                </div>
-              </div>
-            )}
+          <div ref={tableBtnRef}>
+            <GlassBtn
+              title="Insert Table"
+              active={inTable}
+              onClick={() => {
+                if (showTableDialog) { closeTableDialog(); return; }
+                if (tableBtnRef.current) {
+                  const r = tableBtnRef.current.getBoundingClientRect();
+                  setTableDialogPos({ left: r.left + r.width / 2, top: r.top });
+                }
+                setShowTableDialog(true);
+              }}
+            >
+              <Table size={15} />
+            </GlassBtn>
           </div>
 
           {inTable && (
@@ -710,117 +671,177 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
 
           <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
 
-          <div className="relative">
-            <div ref={fontFamilyBtnRef}>
-              <GlassDropdownTrigger title="Font Family" onClick={() => showFontFamily ? closeFontFamily() : setShowFontFamily(true)}>
-                <span style={{ fontFamily: editor?.getAttributes("textStyle").fontFamily || "inherit" }} className="text-xs">
-                  {FONT_FAMILIES.find(f => f.value === editor?.getAttributes("textStyle").fontFamily)?.label || "Font"}
-                </span>
-              </GlassDropdownTrigger>
-            </div>
-
-            {(showFontFamily || fontFamilyClosing) && (
-              <div
-                ref={fontFamilyRef}
-                className={`absolute bottom-full left-0 mb-2 min-w-[180px] max-h-[300px] ${fontFamilyClosing ? "animate-menu-out" : "animate-menu-in"}`}
-                style={{ transformOrigin: "bottom left" }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
-                <div className="relative z-20">
-                  <GlassSurface borderRadius={12} width="auto" height="auto" dark={theme === "dark"} padding={0}>
-                    <div className="overflow-y-auto max-h-[280px] py-1">
-                      {FONT_FAMILIES.map((f) => (
-                        <button
-                          key={f.value}
-                          onClick={() => {
-                            editor?.chain().focus().setMark("textStyle", { fontFamily: f.value }).run();
-                            closeFontFamily();
-                          }}
-                          className={`w-full text-left px-3 py-1.5 text-xs cursor-pointer hover:bg-white/5 transition-colors hover-pop ${
-                            editor?.getAttributes("textStyle").fontFamily === f.value
-                              ? "text-[var(--accent)] bg-[var(--accent)]/10"
-                              : ""
-                          }`}
-                          style={{ fontFamily: f.value }}
-                        >
-                          {f.label}
-                        </button>
-                      ))}
-                      <div className="border-t border-white/10 my-1" />
-                      <button
-                        onClick={() => {
-                          closeFontFamily();
-                          setShowCustomFont(true);
-                          setTimeout(() => customFontInputRef.current?.focus(), 200);
-                        }}
-                        className="w-full text-left px-3 py-1.5 text-xs cursor-pointer hover:bg-white/5 transition-colors hover-pop text-gray-400"
-                      >
-                        Custom font...
-                      </button>
-                    </div>
-                  </GlassSurface>
-                </div>
-              </div>
-            )}
+          <div ref={fontFamilyBtnRef}>
+            <GlassDropdownTrigger title="Font Family" onClick={() => {
+              if (showFontFamily) { closeFontFamily(); return; }
+              if (fontFamilyBtnRef.current) {
+                const r = fontFamilyBtnRef.current.getBoundingClientRect();
+                setFontFamilyPos({ left: r.left, top: r.top });
+              }
+              setShowFontFamily(true);
+            }}>
+              <span style={{ fontFamily: editor?.getAttributes("textStyle").fontFamily || "inherit" }} className="text-xs">
+                {FONT_FAMILIES.find(f => f.value === editor?.getAttributes("textStyle").fontFamily)?.label || "Font"}
+              </span>
+            </GlassDropdownTrigger>
           </div>
 
-          <div className="relative">
-            <div ref={fontSizeBtnRef}>
-              <GlassDropdownTrigger title="Font Size" onClick={() => showFontSize ? closeFontSize() : setShowFontSize(true)}>
-                <span className="text-xs min-w-[20px] text-center">
-                  {editor?.getAttributes("textStyle").fontSize?.replace("px", "") || "16"}
-                </span>
-              </GlassDropdownTrigger>
-            </div>
+          <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
 
-            {(showFontSize || fontSizeClosing) && (
-              <div
-                ref={fontSizeRef}
-                className={`absolute bottom-full left-0 mb-2 min-w-[120px] max-h-[300px] ${fontSizeClosing ? "animate-menu-out" : "animate-menu-in"}`}
-                style={{ transformOrigin: "bottom left" }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
-                <div className="relative z-20">
-                  <GlassSurface borderRadius={12} width="auto" height="auto" dark={theme === "dark"} padding={0}>
-                    <div className="overflow-y-auto max-h-[280px] py-1">
-                      {Array.from({ length: 72 }, (_, i) => i + 9).map((s) => {
-                        const px = `${s}px`;
-                        return (
-                          <button
-                            key={s}
-                            onClick={() => {
-                              editor?.chain().focus().setMark("textStyle", { fontSize: px }).run();
-                              closeFontSize();
-                            }}
-                            className={`w-full text-left px-3 py-1 cursor-pointer hover:bg-white/5 transition-colors hover-pop ${
-                              editor?.getAttributes("textStyle").fontSize === px
-                                ? "text-[var(--accent)] bg-[var(--accent)]/10"
-                                : ""
-                            }`}
-                          >
-                            <span className="text-xs">{s}</span>
-                          </button>
-                        );
-                      })}
-                      <div className="border-t border-white/10 my-1" />
-                      <button
-                        onClick={() => {
-                          closeFontSize();
-                          setShowCustomFontSize(true);
-                          setTimeout(() => customFontSizeInputRef.current?.focus(), 200);
-                        }}
-                        className="w-full text-left px-3 py-1.5 text-xs cursor-pointer hover:bg-white/5 transition-colors hover-pop text-gray-400"
-                      >
-                        Custom size...
-                      </button>
-                    </div>
-                  </GlassSurface>
-                </div>
-              </div>
-            )}
+          <div ref={fontSizeBtnRef}>
+            <GlassDropdownTrigger title="Font Size" onClick={() => {
+              if (showFontSize) { closeFontSize(); return; }
+              if (fontSizeBtnRef.current) {
+                const r = fontSizeBtnRef.current.getBoundingClientRect();
+                setFontSizePos({ left: r.left, top: r.top });
+              }
+              setShowFontSize(true);
+            }}>
+              <span className="text-xs min-w-[20px] text-center">
+                {editor?.getAttributes("textStyle").fontSize?.replace("px", "") || "16"}
+              </span>
+            </GlassDropdownTrigger>
           </div>
         </div>
       </div>
+
+      {/* Fixed-position dropdowns (outside overflow-x-auto context) */}
+      {(showTableDialog || tableDialogClosing) && (
+        <div
+          ref={tableDialogRef}
+          className={`fixed z-[100] ${tableDialogClosing ? "animate-menu-out" : "animate-menu-in"}`}
+          style={{ left: tableDialogPos.left, top: tableDialogPos.top - 8, transform: "translateX(-50%)", transformOrigin: "bottom center" }}
+        >
+          <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
+          <div className="relative z-20">
+            <GlassSurface borderRadius={12} width="auto" height="auto" dark={theme === "dark"} padding={0}>
+              <div className="p-3 space-y-3">
+                <div className="flex items-center gap-3">
+                  <label className="text-xs text-gray-400 w-16">Rows:</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={tableRows}
+                    onChange={(e) => setTableRows(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <label className="text-xs text-gray-400 w-16">Columns:</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={tableCols}
+                    onChange={(e) => setTableCols(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    editor?.chain().focus().insertTable({ rows: tableRows, cols: tableCols, withHeaderRow: true }).run();
+                    closeTableDialog();
+                  }}
+                  className="w-full text-xs bg-[var(--accent)]/20 hover:bg-[var(--accent)]/30 text-[var(--accent)] rounded-lg px-3 py-1.5 cursor-pointer transition-colors"
+                >
+                  Create Table
+                </button>
+              </div>
+            </GlassSurface>
+          </div>
+        </div>
+      )}
+
+      {(showFontFamily || fontFamilyClosing) && (
+        <div
+          ref={fontFamilyRef}
+          className={`fixed z-[100] min-w-[180px] max-h-[300px] ${fontFamilyClosing ? "animate-menu-out" : "animate-menu-in"}`}
+          style={{ left: fontFamilyPos.left, top: fontFamilyPos.top - 4, transformOrigin: "top left" }}
+        >
+          <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
+          <div className="relative z-20">
+            <GlassSurface borderRadius={12} width="auto" height="auto" dark={theme === "dark"} padding={0}>
+              <div className="overflow-y-auto max-h-[280px] py-1">
+                {FONT_FAMILIES.map((f) => (
+                  <button
+                    key={f.value}
+                    onClick={() => {
+                      editor?.chain().focus().setMark("textStyle", { fontFamily: f.value }).run();
+                      closeFontFamily();
+                    }}
+                    className={`w-full text-left px-3 py-1.5 text-xs cursor-pointer hover:bg-white/5 transition-colors hover-pop ${
+                      editor?.getAttributes("textStyle").fontFamily === f.value
+                        ? "text-[var(--accent)] bg-[var(--accent)]/10"
+                        : ""
+                    }`}
+                    style={{ fontFamily: f.value }}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+                <div className="border-t border-white/10 my-1" />
+                <button
+                  onClick={() => {
+                    closeFontFamily();
+                    setShowCustomFont(true);
+                    setTimeout(() => customFontInputRef.current?.focus(), 200);
+                  }}
+                  className="w-full text-left px-3 py-1.5 text-xs cursor-pointer hover:bg-white/5 transition-colors hover-pop text-gray-400"
+                >
+                  Custom font...
+                </button>
+              </div>
+            </GlassSurface>
+          </div>
+        </div>
+      )}
+
+      {(showFontSize || fontSizeClosing) && (
+        <div
+          ref={fontSizeRef}
+          className={`fixed z-[100] min-w-[120px] max-h-[300px] ${fontSizeClosing ? "animate-menu-out" : "animate-menu-in"}`}
+          style={{ left: fontSizePos.left, top: fontSizePos.top - 4, transformOrigin: "top left" }}
+        >
+          <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
+          <div className="relative z-20">
+            <GlassSurface borderRadius={12} width="auto" height="auto" dark={theme === "dark"} padding={0}>
+              <div className="overflow-y-auto max-h-[280px] py-1">
+                {Array.from({ length: 72 }, (_, i) => i + 9).map((s) => {
+                  const px = `${s}px`;
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => {
+                        editor?.chain().focus().setMark("textStyle", { fontSize: px }).run();
+                        closeFontSize();
+                      }}
+                      className={`w-full text-left px-3 py-1 cursor-pointer hover:bg-white/5 transition-colors hover-pop ${
+                        editor?.getAttributes("textStyle").fontSize === px
+                          ? "text-[var(--accent)] bg-[var(--accent)]/10"
+                          : ""
+                      }`}
+                    >
+                      <span className="text-xs">{s}</span>
+                    </button>
+                  );
+                })}
+                <div className="border-t border-white/10 my-1" />
+                <button
+                  onClick={() => {
+                    closeFontSize();
+                    setShowCustomFontSize(true);
+                    setTimeout(() => customFontSizeInputRef.current?.focus(), 200);
+                  }}
+                  className="w-full text-left px-3 py-1.5 text-xs cursor-pointer hover:bg-white/5 transition-colors hover-pop text-gray-400"
+                >
+                  Custom size...
+                </button>
+              </div>
+            </GlassSurface>
+          </div>
+        </div>
+      )}
 
       {(showCustomFontSize || showCustomFont) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => { setShowCustomFontSize(false); setShowCustomFont(false); }}>
