@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import type { Reminder } from "../../types";
-import { Calendar, Clock, MapPin, Tag, Save, X } from "lucide-react";
+import { Trash2, Calendar, Clock, MapPin, Tag, Save, X } from "lucide-react";
 import { requestNotificationPermission } from "../../services/notifications";
 
 interface ReminderEditorProps {
   reminder: Reminder;
   onSave: (reminder: Reminder) => void;
+  onDelete?: (id: string) => void;
   onCancel?: () => void;
 }
 
-export default function ReminderEditor({ reminder, onSave, onCancel }: ReminderEditorProps) {
+export default function ReminderEditor({ reminder, onSave, onDelete, onCancel }: ReminderEditorProps) {
   const [title, setTitle] = useState(reminder.title || "");
   const [description, setDescription] = useState(reminder.description || "");
 
@@ -56,6 +57,11 @@ export default function ReminderEditor({ reminder, onSave, onCancel }: ReminderE
       <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
         <h2 className="font-semibold">{reminder.id ? "Edit Reminder" : "New Reminder"}</h2>
         <div className="flex gap-2">
+          {onDelete && (
+            <button onClick={() => onDelete(reminder.id)} className="p-2 rounded-xl hover:bg-red-500/20 hover-pop transition-colors cursor-pointer" title="Delete">
+              <Trash2 size={16} className="text-red-400" />
+            </button>
+          )}
           {onCancel && (
             <button onClick={onCancel} className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 hover-pop transition-colors cursor-pointer">
               <X size={16} />

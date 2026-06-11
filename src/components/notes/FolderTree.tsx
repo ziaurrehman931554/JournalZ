@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Folder, Note, Reminder } from "../../types";
 import GlassSurface from "../GlassSurface";
 import { useTheme } from "../../context/ThemeContext";
@@ -17,6 +18,7 @@ interface FolderTreeProps {
   reminders: Reminder[];
   selectedFolderId: string | null;
   selectedView: string;
+  selectedReminderId: string | null;
   collapsed: boolean;
   collapsedFolders: Record<string, boolean>;
   onToggleCollapse: (id: string) => void;
@@ -25,6 +27,7 @@ interface FolderTreeProps {
   onAddFolder: (parentId: string | null) => void;
   onDeleteFolder: (id: string) => void;
   onSelectNote: (id: string) => void;
+  onSelectReminder: (id: string) => void;
   onOpenCreateMenu: (e: React.MouseEvent, folderId: string) => void;
   onOpenBrowse: (type: "notes" | "checklists" | "reminders", folderId: string | null) => void;
 }
@@ -42,6 +45,7 @@ export default function FolderTree({
   reminders,
   selectedFolderId,
   selectedView,
+  selectedReminderId,
   collapsed,
   collapsedFolders,
   onToggleCollapse,
@@ -50,9 +54,11 @@ export default function FolderTree({
   onAddFolder,
   onDeleteFolder,
   onSelectNote,
+  onSelectReminder,
   onOpenCreateMenu,
   onOpenBrowse,
 }: FolderTreeProps) {
+  const [remindersExpanded, setRemindersExpanded] = useState(true);
   if (collapsed) {
     const rootFolders = folders.filter((f) => !f.parentId);
     return (
@@ -207,15 +213,43 @@ export default function FolderTree({
           <span>Checklists</span>
           <span className="ml-auto text-xs text-gray-500">{notes.filter((n) => n.type === "checklist").length}</span>
         </div>
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer rounded-lg transition-all duration-200 ${
-            selectedView === "reminders" ? "bg-[var(--accent)]/10 font-medium" : "hover:bg-[var(--elevated-bg)]/50"
-          } hover-pop`}
-          onClick={() => onOpenBrowse("reminders", null)}
-        >
-          <Bell size={14} className="text-yellow-400" />
-          <span>Reminders</span>
-          <span className="ml-auto text-xs text-gray-500">{reminders.length}</span>
+        <div>
+          <div
+            className={`flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer rounded-lg transition-all duration-200 ${
+              selectedView === "reminders" ? "bg-[var(--accent)]/10 font-medium" : "hover:bg-[var(--elevated-bg)]/50"
+            } hover-pop`}
+            onClick={(e) => { e.stopPropagation(); setRemindersExpanded(!remindersExpanded); onOpenBrowse("reminders", null); }}
+          >
+            <ChevronRight
+              size={14}
+              className={`transition-transform duration-200 ${remindersExpanded ? "rotate-90" : ""}`}
+            />
+            <Bell size={14} className="text-yellow-400" />
+            <span>Reminders</span>
+            <span className="ml-auto text-xs text-gray-500">{reminders.length}</span>
+          </div>
+          {remindersExpanded && reminders.length > 0 && (
+            <div className="pt-0.5">
+              {reminders.map((r) => (
+                <div
+                  key={r.id}
+                  className={`flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer rounded-lg transition-all duration-200 animate-slide-down ${
+                    selectedReminderId === r.id ? "bg-[var(--accent)]/10 font-medium" : "hover:bg-[var(--elevated-bg)]/50"
+                  } hover-pop`}
+                  style={{ paddingLeft: `${12 + 16}px` }}
+                  onClick={(e) => { e.stopPropagation(); onSelectReminder(r.id); }}
+                >
+                  <Bell size={14} className="shrink-0 text-yellow-400" />
+                  <span className="truncate text-gray-700 dark:text-gray-300">{r.title || "Untitled"}</span>
+                  <span className="ml-auto text-xs text-gray-500 shrink-0">
+                    {r.dueDate > Date.now()
+                      ? new Date(r.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                      : "Overdue"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

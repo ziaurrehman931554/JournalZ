@@ -44,6 +44,7 @@ function AppContent() {
     createFolder,
     deleteFolder,
     addReminder,
+    deleteReminder,
     syncNow,
   } = useApp();
   const { user, logout } = useAuth();
@@ -147,6 +148,11 @@ function AppContent() {
     setEditingReminder(null);
   };
 
+  const handleDeleteReminder = (id: string) => {
+    deleteReminder(id);
+    setEditingReminder(null);
+  };
+
   const handleOpenBrowse = (type: "notes" | "checklists" | "reminders", folderId: string | null) => {
     setBrowseType(type);
     setBrowseFolderId(folderId);
@@ -226,6 +232,7 @@ function AppContent() {
           reminders={reminders}
           selectedFolderId={selectedFolderId}
           selectedView={selectedView}
+          selectedReminderId={editingReminder?.id || null}
           collapsed={!sidebarOpen}
           collapsedFolders={collapsedFolders}
           onToggleCollapse={handleToggleCollapse}
@@ -234,6 +241,7 @@ function AppContent() {
           onAddFolder={handleAddFolder}
           onDeleteFolder={deleteFolder}
           onSelectNote={handleSelectNote}
+          onSelectReminder={handleSelectReminder}
           onOpenCreateMenu={handleOpenCreateMenu}
           onOpenBrowse={handleOpenBrowse}
         />
@@ -317,6 +325,7 @@ function AppContent() {
             <ReminderEditor
               reminder={editingReminder}
               onSave={handleSaveReminder}
+              onDelete={handleDeleteReminder}
               onCancel={() => setEditingReminder(null)}
             />
           ) : selectedNote ? (
