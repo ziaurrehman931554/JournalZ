@@ -317,7 +317,7 @@ function AppContent() {
             />
           ) : selectedNote ? (
             selectedNote.type === "checklist" ? (
-              <ChecklistEditor note={selectedNote} onUpdate={updateNote} />
+              <ChecklistEditor note={selectedNote} onUpdate={updateNote} onClose={() => setSelectedNote(null)} />
             ) : (
               <NoteEditor note={selectedNote} onUpdate={updateNote} onClose={() => setSelectedNote(null)} />
             )

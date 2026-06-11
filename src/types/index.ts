@@ -10,12 +10,14 @@ export interface Note {
   updatedAt: number;
   type: "note" | "checklist";
   checklist?: ChecklistItem[];
+  checklistGrocery?: boolean;
 }
 
 export interface ChecklistItem {
   id: string;
   text: string;
   checked: boolean;
+  specs?: string;
 }
 
 export interface Folder {
