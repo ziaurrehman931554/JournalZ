@@ -15,14 +15,17 @@ import { Table as TableExt } from "@tiptap/extension-table";
 import TableRow from "@tiptap/extension-table-row";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
+import { Extension } from "@tiptap/core";
 import { TextStyle } from "@tiptap/extension-text-style";
 import FontFamily from "@tiptap/extension-font-family";
 import Placeholder from "@tiptap/extension-placeholder";
 
-const FontSize = TextStyle.extend({
+const FontSize = Extension.create<{ types: string[] }>({
   name: "fontSize",
   addOptions() {
-    return { types: ["textStyle"] };
+    return {
+      types: ["textStyle"],
+    };
   },
   addGlobalAttributes() {
     return [
@@ -151,9 +154,9 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const menuRef = useRef<HTMLDivElement>(null);
   const moreBtnRef = useRef<HTMLButtonElement>(null);
-  const fontFamilyBtnRef = useRef<HTMLButtonElement>(null);
-  const fontSizeBtnRef = useRef<HTMLButtonElement>(null);
-  const tableBtnRef = useRef<HTMLButtonElement>(null);
+  const fontFamilyBtnRef = useRef<HTMLDivElement>(null);
+  const fontSizeBtnRef = useRef<HTMLDivElement>(null);
+  const tableBtnRef = useRef<HTMLDivElement>(null);
   const customFontSizeInputRef = useRef<HTMLInputElement>(null);
   const customFontInputRef = useRef<HTMLInputElement>(null);
   const noteRef = useRef(note);
@@ -489,7 +492,7 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
                         {menuItems.map((item) => (
                           <button
                             key={item.label}
-                            onClick={() => { closeMenu(); item.onClick?.(); }}
+                            onClick={closeMenu}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover-pop cursor-pointer [&>svg]:stroke-[2.5] ${
                               item.danger ? "text-red-400 hover:bg-red-500/10" : "hover:bg-white/5"
                             }`}

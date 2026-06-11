@@ -159,7 +159,7 @@ export default function BrowsePanel({
                     <FileText size={16} className="mt-0.5 shrink-0 text-[var(--accent)]" />
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <p className="text-sm font-medium truncate">{n.title || "Untitled"}</p>
                       {n.isPinned && <Pin size={10} className="text-[var(--accent)] shrink-0" />}
                     </div>
