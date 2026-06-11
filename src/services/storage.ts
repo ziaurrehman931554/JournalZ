@@ -111,6 +111,14 @@ export async function clearSyncQueue(): Promise<void> {
   await db.clear("syncQueue");
 }
 
+export async function clearAllLocalData(): Promise<void> {
+  const db = await getDB();
+  await db.clear("notes");
+  await db.clear("folders");
+  await db.clear("reminders");
+  await db.clear("syncQueue");
+}
+
 export async function syncToFirestore(userId: string): Promise<void> {
   const queue = await getSyncQueue();
   if (queue.length === 0) return;

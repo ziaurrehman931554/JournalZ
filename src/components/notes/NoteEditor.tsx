@@ -410,9 +410,9 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
     <div className="relative h-full flex flex-col">
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-16 pt-3">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
+          {/* <div className="absolute inset-0 rounded-full bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" /> */}
           <div className="relative z-20">
-            <GlassSurface borderRadius={9999} width="auto" height="auto" dark={theme === "dark"} padding={0}>
+            <GlassSurface borderRadius={9} width="auto" height="auto" dark={theme === "dark"} padding={0}>
               <button
                 onClick={onClose}
                 className="flex items-center justify-center p-2 rounded-full cursor-pointer hover-pop"

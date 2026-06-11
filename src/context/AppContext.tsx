@@ -14,6 +14,7 @@ import {
   syncToFirestore,
   pullFromFirestore,
   addToSyncQueue,
+  clearAllLocalData,
 } from "../services/storage";
 import { useAuth } from "./AuthContext";
 
@@ -87,9 +88,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       try {
         await syncToFirestore(user.uid);
         const remote = await pullFromFirestore(user.uid);
-        if (remote.notes.length) setNotes(remote.notes);
-        if (remote.folders.length) setFolders(remote.folders);
-        if (remote.reminders.length) setReminders(remote.reminders);
+        setNotes(remote.notes);
+        setFolders(remote.folders);
+        setReminders(remote.reminders);
       } catch {
         // auto-sync failed silently; queue will retry next time
       }
@@ -103,9 +104,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user && navigator.onLine) {
       pullFromFirestore(user.uid).then(({ notes: fbNotes, folders: fbFolders, reminders: fbReminders }) => {
-        if (fbNotes.length) setNotes(fbNotes);
-        if (fbFolders.length) setFolders(fbFolders);
-        if (fbReminders.length) setReminders(fbReminders);
+        setNotes(fbNotes);
+        setFolders(fbFolders);
+        setReminders(fbReminders);
+      });
+    } else if (!user) {
+      clearAllLocalData().then(() => {
+        setNotes([]);
+        setFolders([]);
+        setReminders([]);
+        setSelectedNote(null);
       });
     }
   }, [user]);
