@@ -5,6 +5,7 @@ import ChecklistEditor from "../components/notes/ChecklistEditor";
 import ReminderEditor from "../components/notes/ReminderEditor";
 import BrowsePanel from "../components/notes/BrowsePanel";
 import GlassSurface from "../components/GlassSurface";
+import NotificationToast from "../components/NotificationToast";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useState, useRef, useEffect } from "react";
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 import logo from "../assets/logo.png";
 import type { Reminder } from "../types";
+import { useReminderWatcher } from "../hooks/useReminderWatcher";
 
 function AppContent() {
   const {
@@ -64,6 +66,8 @@ function AppContent() {
   const [profileRect, setProfileRect] = useState<{ top: number; left: number; width: number } | null>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
+
+  const { toasts, dismissToast } = useReminderWatcher(reminders, addReminder);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -472,6 +476,13 @@ function AppContent() {
           </div>
         </div>
       )}
+
+      {/* Notification toasts */}
+      <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2">
+        {toasts.map((t) => (
+          <NotificationToast key={t.id} id={t.id} title={t.title} description={t.description} onDismiss={dismissToast} />
+        ))}
+      </div>
     </div>
   );
 }

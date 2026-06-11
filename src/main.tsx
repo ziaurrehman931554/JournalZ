@@ -3,7 +3,10 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
+import { registerServiceWorker } from "./services/notifications";
 import "./index.css";
+
+registerServiceWorker();
 
 const basename = import.meta.env.BASE_URL.replace(/\/+$/, "");
 

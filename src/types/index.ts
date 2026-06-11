@@ -37,6 +37,7 @@ export interface Reminder {
   description: string;
   dueDate: number;
   isCompleted: boolean;
+  notifiedAt?: number;
   createdAt: number;
   location?: string;
   tags?: string[];
