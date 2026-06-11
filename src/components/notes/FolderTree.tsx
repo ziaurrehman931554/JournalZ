@@ -126,7 +126,7 @@ export default function FolderTree({
           className={`flex items-center gap-1 px-2 py-1.5 text-sm cursor-pointer transition-all duration-200 group ${
             selectedFolderId === folder.id ? "bg-[var(--accent)]/10 font-medium" : "hover:bg-[var(--elevated-bg)]/50"
           } rounded-lg hover-pop`}
-          style={{ paddingLeft: `${12 + depth * 16}px` }}
+          style={{ paddingLeft: `${12 + depth * 20}px` }}
           onClick={() => { onSelectFolder(folder.id); onToggleCollapse(folder.id); }}
         >
           <button
@@ -158,13 +158,13 @@ export default function FolderTree({
         {!isCollapsed && (
           <div className="overflow-hidden">
             {subfolders.map((sf) => renderFolder(sf, depth + 1))}
-            {(folderNotes.length > 0 || folderReminders.length > 0) && (
+            {folderNotes.length > 0 || folderReminders.length > 0 ? (
               <div className="pt-0.5">
                 {folderNotes.map((note) => (
                   <div
                     key={note.id}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-[var(--elevated-bg)]/50 hover-pop rounded-lg transition-all duration-200 animate-slide-down"
-                    style={{ paddingLeft: `${12 + (depth + 1) * 16}px` }}
+                    style={{ paddingLeft: `${28 + (depth + 1) * 20}px` }}
                     onClick={(e) => { e.stopPropagation(); onSelectNote(note.id); }}
                   >
                     {note.type === "checklist" ? (
@@ -181,7 +181,7 @@ export default function FolderTree({
                     className={`flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer rounded-lg transition-all duration-200 animate-slide-down ${
                       selectedReminderId === r.id ? "bg-[var(--accent)]/10 font-medium" : "hover:bg-[var(--elevated-bg)]/50"
                     } hover-pop`}
-                    style={{ paddingLeft: `${12 + (depth + 1) * 16}px` }}
+                    style={{ paddingLeft: `${28 + (depth + 1) * 20}px` }}
                     onClick={(e) => { e.stopPropagation(); onSelectReminder(r.id); }}
                   >
                     <Bell size={14} className="shrink-0 text-yellow-400" />
@@ -193,6 +193,10 @@ export default function FolderTree({
                     </span>
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div className="text-xs text-gray-500 px-3 py-2 italic" style={{ paddingLeft: `${28 + (depth + 1) * 20}px` }}>
+                Click + to add items to this folder
               </div>
             )}
           </div>

@@ -8,7 +8,7 @@ import GlassSurface from "../components/GlassSurface";
 import NotificationToast from "../components/NotificationToast";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -43,6 +43,7 @@ function AppContent() {
     updateNote,
     createFolder,
     deleteFolder,
+    deleteNote,
     addReminder,
     deleteReminder,
     syncNow,
@@ -69,6 +70,18 @@ function AppContent() {
   const profileButtonRef = useRef<HTMLButtonElement>(null);
 
   const { toasts, dismissToast } = useReminderWatcher(reminders, addReminder);
+  const [syncToasts, setSyncToasts] = useState<Array<{id: string; title: string; description: string; type: "sync" | "sync-offline"}>>([]);
+
+  const dismissSyncToast = useCallback((id: string) => {
+    setSyncToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  const addSyncToast = (item: string, online: boolean) => {
+    const id = crypto.randomUUID();
+    const t = online ? "sync" : "sync-offline";
+    const status = online ? "synced online" : "saved locally";
+    setSyncToasts(prev => [...prev, { id, title: `${item} ${status}`, description: online ? "Changes saved locally and synced to cloud" : "You are offline. Changes saved locally.", type: t }]);
+  };
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -123,6 +136,38 @@ function AppContent() {
   const handleOpenCreateMenu = (e: React.MouseEvent, folderId: string) => {
     const r = e.currentTarget.getBoundingClientRect();
     setCreateMenu({ position: { top: r.bottom + 4, left: r.left }, folderId });
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {}
+    setProfileOpen(false);
+  };
+
+  const handleSyncNow = async () => {
+    try {
+      await syncNow();
+      addSyncToast("Sync", navigator.onLine);
+    } catch {
+      setSyncToasts(prev => [...prev, { id: crypto.randomUUID(), title: "Sync failed", description: "Could not sync with cloud", type: "sync-offline" }]);
+    }
+  };
+
+  const handleCloseNote = () => {
+    if (selectedNote) {
+      if (!selectedNote.title) deleteNote(selectedNote.id);
+      addSyncToast(selectedNote.type === "checklist" ? "Checklist" : "Note", navigator.onLine);
+    }
+    setSelectedNote(null);
+  };
+
+  const handleCancelReminder = () => {
+    if (editingReminder) {
+      if (!editingReminder.title && !editingReminder.description) deleteReminder(editingReminder.id);
+      addSyncToast("Reminder", navigator.onLine);
+    }
+    setEditingReminder(null);
   };
 
   const handleSelectNote = (id: string) => {
@@ -327,13 +372,13 @@ function AppContent() {
               reminder={editingReminder}
               onSave={handleSaveReminder}
               onDelete={handleDeleteReminder}
-              onCancel={() => setEditingReminder(null)}
+              onCancel={handleCancelReminder}
             />
           ) : selectedNote ? (
             selectedNote.type === "checklist" ? (
-              <ChecklistEditor note={selectedNote} onUpdate={updateNote} onClose={() => setSelectedNote(null)} />
+              <ChecklistEditor note={selectedNote} onUpdate={updateNote} onClose={handleCloseNote} />
             ) : (
-              <NoteEditor note={selectedNote} onUpdate={updateNote} onClose={() => setSelectedNote(null)} />
+              <NoteEditor note={selectedNote} onUpdate={updateNote} onClose={handleCloseNote} />
             )
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-gray-500 p-8">
@@ -464,7 +509,7 @@ function AppContent() {
                   )}
                 </div>
                 <button
-                  onClick={syncNow}
+                  onClick={handleSyncNow}
                   disabled={syncStatus.isSyncing}
                   className="flex items-center gap-2 text-xs text-[var(--accent)] hover:underline disabled:opacity-50 hover-pop cursor-pointer"
                 >
@@ -474,7 +519,7 @@ function AppContent() {
               </div>
               <div className="p-2">
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 hover-pop cursor-pointer"
                 >
                   <LogOut size={14} />
@@ -492,6 +537,9 @@ function AppContent() {
       <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2">
         {toasts.map((t) => (
           <NotificationToast key={t.id} id={t.id} title={t.title} description={t.description} onDismiss={dismissToast} />
+        ))}
+        {syncToasts.map((t) => (
+          <NotificationToast key={t.id} id={t.id} title={t.title} description={t.description} type={t.type} onDismiss={dismissSyncToast} />
         ))}
       </div>
     </div>
