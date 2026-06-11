@@ -709,7 +709,7 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
       {(showTableDialog || tableDialogClosing) && (
         <div
           ref={tableDialogRef}
-          className={`fixed z-[100] ${tableDialogClosing ? "animate-menu-out" : "animate-menu-in"}`}
+          className={`fixed z-[100] w-60 ${tableDialogClosing ? "animate-menu-out" : "animate-menu-in"}`}
           style={{ left: "50%", bottom: window.innerHeight - tableDialogPos.top + 8, transform: "translateX(-50%)", transformOrigin: "bottom center" }}
         >
           <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
@@ -756,7 +756,7 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
       {(showFontFamily || fontFamilyClosing) && (
         <div
           ref={fontFamilyRef}
-          className={`fixed z-[100] min-w-[180px] max-h-[300px] ${fontFamilyClosing ? "animate-menu-out" : "animate-menu-in"}`}
+          className={`fixed z-[100] w-48 max-h-[300px] ${fontFamilyClosing ? "animate-menu-out" : "animate-menu-in"}`}
           style={{ left: "50%", bottom: window.innerHeight - fontFamilyPos.top + 4, transform: "translateX(-50%)", transformOrigin: "bottom left" }}
         >
           <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
@@ -800,7 +800,7 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
       {(showFontSize || fontSizeClosing) && (
         <div
           ref={fontSizeRef}
-          className={`fixed z-[100] min-w-[120px] max-h-[300px] ${fontSizeClosing ? "animate-menu-out" : "animate-menu-in"}`}
+          className={`fixed z-[100] w-28 max-h-[300px] ${fontSizeClosing ? "animate-menu-out" : "animate-menu-in"}`}
           style={{ left: "50%", bottom: window.innerHeight - fontSizePos.top + 4, transform: "translateX(-50%)", transformOrigin: "bottom left" }}
         >
           <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
