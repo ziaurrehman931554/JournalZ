@@ -1,4 +1,4 @@
-const CACHE_NAME = "journalz-v1";
+const CACHE_NAME = "journalz-v2";
 const ASSETS = ["/", "/index.html", "/src/main.tsx", "/src/index.css"];
 
 self.addEventListener("install", (event) => {
@@ -28,4 +28,19 @@ self.addEventListener("activate", (event) => {
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   );
+});
+
+self.addEventListener("push", (event) => {
+  let data = { title: "JournalZ", body: "" };
+  if (event.data) {
+    try { data = event.data.json(); } catch { data.body = event.data.text(); }
+  }
+  event.waitUntil(
+    self.registration.showNotification(data.title, { body: data.body, icon: "/icon-192.png" })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(clients.openWindow("/"));
 });
