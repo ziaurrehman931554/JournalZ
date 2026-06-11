@@ -83,16 +83,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const autoSync = useCallback(async () => {
     if (!user || !navigator.onLine) return;
+    console.log("[sync] autoSync triggered for user", user.uid);
     if (syncTimer.current) clearTimeout(syncTimer.current);
     syncTimer.current = setTimeout(async () => {
       try {
         await syncToFirestore(user.uid);
+        console.log("[sync] syncToFirestore done, now pulling");
         const remote = await pullFromFirestore(user.uid);
+        console.log("[sync] pull done, notes:", remote.notes.length, "folders:", remote.folders.length, "reminders:", remote.reminders.length);
         setNotes(remote.notes);
         setFolders(remote.folders);
         setReminders(remote.reminders);
-      } catch {
-        // auto-sync failed silently; queue will retry next time
+      } catch (e) {
+        console.error("[sync] autoSync failed:", e);
       }
     }, 1500);
   }, [user]);
@@ -105,13 +108,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (user && navigator.onLine) {
       (async () => {
         try {
+          console.log("[sync] login effect: pushing local to Firestore");
           await syncToFirestore(user.uid);
+          console.log("[sync] login effect: syncToFirestore done, now pulling");
           const remote = await pullFromFirestore(user.uid);
+          console.log("[sync] login effect: pull done, notes:", remote.notes.length, "folders:", remote.folders.length);
           setNotes(remote.notes);
           setFolders(remote.folders);
           setReminders(remote.reminders);
-        } catch {
-          // pull failed, local data remains
+        } catch (e) {
+          console.error("[sync] login effect failed:", e);
         }
       })();
     } else if (!user) {

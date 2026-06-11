@@ -121,6 +121,7 @@ export async function clearAllLocalData(): Promise<void> {
 
 export async function syncToFirestore(userId: string): Promise<void> {
   const queue = await getSyncQueue();
+  console.log("[syncToFirestore] queue items:", queue.length);
   if (queue.length === 0) return;
 
   const batch = writeBatch(firestore);
@@ -132,6 +133,7 @@ export async function syncToFirestore(userId: string): Promise<void> {
     data?: Note | Folder | Reminder;
   }>) {
     const ref = doc(firestore, `users/${userId}/${item.collection}`, item.docId);
+    console.log("[syncToFirestore] processing:", item.action, item.collection, item.docId);
     if (item.action === "delete") {
       batch.delete(ref);
     } else if (item.data) {
@@ -141,6 +143,7 @@ export async function syncToFirestore(userId: string): Promise<void> {
 
   await batch.commit();
   await clearSyncQueue();
+  console.log("[syncToFirestore] batch committed and queue cleared");
 }
 
 export async function pullFromFirestore(userId: string): Promise<{
@@ -151,8 +154,10 @@ export async function pullFromFirestore(userId: string): Promise<{
   const results = { notes: [] as Note[], folders: [] as Folder[], reminders: [] as Reminder[] };
 
   for (const coll of ["notes", "folders", "reminders"] as const) {
+    console.log("[pullFromFirestore] fetching", coll, "for user", userId);
     const q = query(collection(firestore, `users/${userId}/${coll}`));
     const snapshot = await getDocs(q);
+    console.log("[pullFromFirestore] got", snapshot.docs.length, "docs from", coll);
     const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Note & Folder & Reminder));
 
     const db = await getDB();
