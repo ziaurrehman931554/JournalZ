@@ -49,8 +49,7 @@ export function scheduleDailyReminder(
 export async function registerServiceWorker(): Promise<void> {
   if ("serviceWorker" in navigator && "SyncManager" in window) {
     try {
-      const registration = await navigator.serviceWorker.register("/sw.js");
-      console.log("SW registered:", registration);
+      await navigator.serviceWorker.register("/sw.js");
     } catch (err) {
       console.error("SW registration failed:", err);
     }
