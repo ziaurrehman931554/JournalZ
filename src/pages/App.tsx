@@ -68,6 +68,7 @@ function AppContent() {
   const [profileRect, setProfileRect] = useState<{ top: number; left: number; width: number } | null>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const { toasts, dismissToast } = useReminderWatcher(reminders, addReminder);
   const [syncToasts, setSyncToasts] = useState<Array<{id: string; title: string; description: string; type: "sync" | "sync-offline"}>>([]);
@@ -86,7 +87,8 @@ function AppContent() {
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (profileButtonRef.current && !profileButtonRef.current.contains(e.target as Node) &&
-          profileRef.current && !profileRef.current.contains(e.target as Node)) {
+          profileRef.current && !profileRef.current.contains(e.target as Node) &&
+          menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setProfileOpen(false);
       }
     };
@@ -489,7 +491,7 @@ function AppContent() {
       )}
 
       {profileOpen && profileRect && (
-        <div className="fixed inset-0 z-50">
+        <div ref={menuRef} className="fixed inset-0 z-50">
           <div className="fixed inset-0" onClick={() => setProfileOpen(false)} />
           <div className="relative" style={{ position: 'fixed', top: profileRect.top - 8, left: profileRect.left + profileRect.width / 2, transform: 'translateX(-50%) translateY(-100%)' }}>
             <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
