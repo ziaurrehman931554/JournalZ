@@ -90,8 +90,8 @@ function AppContent() {
         setProfileOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
   }, []);
 
   const handleAddFolder = (parentId?: string | null) => {
@@ -141,16 +141,20 @@ function AppContent() {
   const handleLogout = async () => {
     try {
       await logout();
-    } catch {}
-    setProfileOpen(false);
+      setProfileOpen(false);
+    } catch (e) {
+      setProfileOpen(false);
+    }
   };
 
   const handleSyncNow = async () => {
-    try {
-      await syncNow();
-      addSyncToast("Sync", navigator.onLine);
-    } catch {
-      setSyncToasts(prev => [...prev, { id: crypto.randomUUID(), title: "Sync failed", description: "Could not sync with cloud", type: "sync-offline" }]);
+    if (!syncStatus.isSyncing) {
+      try {
+        await syncNow();
+        addSyncToast("Sync", navigator.onLine);
+      } catch {
+        setSyncToasts(prev => [...prev, { id: crypto.randomUUID(), title: "Sync failed", description: "Could not sync with cloud", type: "sync-offline" }]);
+      }
     }
   };
 

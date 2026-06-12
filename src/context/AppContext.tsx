@@ -282,8 +282,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       await syncToFirestore(user.uid);
       await pullFromFirestore(user.uid);
       setSyncStatus({ lastSynced: Date.now(), isSyncing: false, pendingChanges: 0 });
-    } catch {
+    } catch (e) {
       setSyncStatus((prev) => ({ ...prev, isSyncing: false }));
+      throw e;
     }
   }, [user]);
 
