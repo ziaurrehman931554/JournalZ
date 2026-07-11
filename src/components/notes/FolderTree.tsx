@@ -142,13 +142,13 @@ export default function FolderTree({
           <span className="truncate flex-1">{folder.name}</span>
           <button
             onClick={(e) => { e.stopPropagation(); onOpenCreateMenu(e, folder.id); }}
-            className="p-0.5 hover:bg-black/5 dark:hover:bg-white/10 rounded cursor-pointer opacity-0 group-hover:opacity-100 hover-pop"
+            className="p-0.5 hover:bg-black/5 dark:hover:bg-white/10 rounded cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 hover-pop"
           >
             <Plus size={14} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id); }}
-            className="p-0.5 hover:bg-red-500/20 rounded cursor-pointer opacity-0 group-hover:opacity-100 mr-1 hover-pop"
+            className="p-0.5 hover:bg-red-500/20 rounded cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 mr-1 hover-pop"
             title="Delete"
           >
             <Trash2 size={12} className="text-red-400" />

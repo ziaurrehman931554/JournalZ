@@ -74,6 +74,7 @@ const GlassSurface = React.forwardRef<HTMLDivElement, GlassSurfaceProps>(({
 
   const [svgSupported, setSvgSupported] = useState<boolean>(false);
   const [systemDark, setSystemDark] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const setRef = useCallback((node: HTMLDivElement | null) => {
@@ -148,6 +149,11 @@ const GlassSurface = React.forwardRef<HTMLDivElement, GlassSurfaceProps>(({
 
   useEffect(() => {
     setSvgSupported(supportsSVGFilters());
+    const mq = window.matchMedia('(hover: none) and (pointer: coarse)');
+    setIsTouch(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
   }, []);
 
   useEffect(() => {
@@ -192,6 +198,16 @@ const GlassSurface = React.forwardRef<HTMLDivElement, GlassSurfaceProps>(({
     const bg = backgroundOpacity > 0
       ? (isDark ? `rgba(0, 0, 0, ${backgroundOpacity})` : `rgba(255, 255, 255, ${backgroundOpacity})`)
       : null;
+
+    if (isTouch) {
+      return {
+        ...baseStyles,
+        background: bg ?? (isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.2)'),
+        backdropFilter: backdropFilterSupported ? 'blur(6px)' : 'none',
+        WebkitBackdropFilter: backdropFilterSupported ? 'blur(6px)' : 'none',
+        border: '1px solid transparent',
+      };
+    }
 
     if (svgSupported) {
       return {

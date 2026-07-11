@@ -1,21 +1,34 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 
 export default function CursorFollower() {
   const { theme } = useTheme();
+  const [isTouch, setIsTouch] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(hover: none) and (pointer: coarse)').matches
+  );
   const dotRef = useRef<HTMLDivElement>(null);
   const posRef = useRef({ x: 0, y: 0 });
   const mouseRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
+    const mq = window.matchMedia('(hover: none) and (pointer: coarse)');
+    setIsTouch(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    if (isTouch) return;
     const onMouse = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
     };
     window.addEventListener("mousemove", onMouse);
     return () => window.removeEventListener("mousemove", onMouse);
-  }, []);
+  }, [isTouch]);
 
   useEffect(() => {
+    if (isTouch) return;
     let frame = 0;
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
@@ -32,7 +45,9 @@ export default function CursorFollower() {
     };
     frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
-  }, []);
+  }, [isTouch]);
+
+  if (isTouch) return null;
 
   return (
     <div
