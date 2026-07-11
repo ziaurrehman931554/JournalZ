@@ -22,6 +22,8 @@ import {
   Bell,
   Sun,
   Moon,
+  Menu,
+  X,
 } from "lucide-react";
 import logo from "../assets/logo.png";
 import type { Reminder } from "../types";
@@ -249,7 +251,7 @@ function AppContent() {
   return (
     <div className="h-screen overflow-hidden relative">
       <div className="h-full p-3 flex gap-3">
-        <div className="relative group shrink-0 h-full">
+        <div className="relative group shrink-0 h-full hidden md:block">
           <aside
             onClick={handleSidebarClick}
             className={`${sidebarOpen ? "w-60" : "w-14"} flex flex-col transition-all duration-300 relative z-20 h-full`}
@@ -360,7 +362,7 @@ function AppContent() {
         </aside>
 
           {!sidebarOpen && (
-            <div className="absolute top-1/2 -translate-y-1/2 -right-3 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute top-1/2 -translate-y-1/2 -right-3 z-30 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
               <button
                 onClick={() => setSidebarOpen(true)}
                 className="w-5 h-12 flex items-center justify-center rounded-r-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 shadow-xl hover:bg-[var(--elevated-bg)]/50 transition-colors cursor-pointer"
@@ -370,7 +372,98 @@ function AppContent() {
               </button>
             </div>
           )}
+
         </div>
+
+        {/* Mobile sidebar drawer */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div className="fixed inset-0 bg-black/30" onClick={() => setSidebarOpen(false)} />
+            <div className="fixed left-0 top-0 bottom-0 w-60">
+            <aside className="flex flex-col h-full relative z-20">
+            <div className="flex flex-col h-full rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 shadow-xl overflow-hidden">
+            <div className="flex items-center justify-between h-14 px-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <img src={logo} alt="J" className="w-7 h-7 object-contain" />
+                <span className="font-bold text-base">
+                  <span className="text-[var(--accent)]">J</span>ournalZ.
+                </span>
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-[var(--elevated-bg)]/50 hover-pop transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+        <FolderTree
+          folders={folders}
+          notes={allNotes}
+          reminders={reminders}
+          selectedFolderId={selectedFolderId}
+          selectedView={selectedView}
+          selectedReminderId={editingReminder?.id || null}
+          collapsed={false}
+          collapsedFolders={collapsedFolders}
+          onToggleCollapse={handleToggleCollapse}
+          onSelectFolder={(id) => setSelectedFolderId(id)}
+          onSelectView={(view) => setSelectedView(view)}
+          onAddFolder={handleAddFolder}
+          onDeleteFolder={deleteFolder}
+          onSelectNote={handleSelectNote}
+          onSelectReminder={handleSelectReminder}
+          onOpenCreateMenu={handleOpenCreateMenu}
+          onOpenBrowse={handleOpenBrowse}
+        />
+
+        <div className="border-t border-white/10 p-2 relative">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <button
+                  ref={profileButtonRef}
+                  onClick={handleProfileClick}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl hover:bg-[var(--elevated-bg)]/50 hover-pop transition-all duration-200 cursor-pointer"
+                  title="Profile"
+                >
+                  <div className="w-8 h-8 rounded-full bg-[var(--accent)]/10 flex items-center justify-center shrink-0 overflow-hidden">
+                    {user?.photoURL ? (
+                      <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <User size={16} className="text-[var(--accent)]" />
+                    )}
+                  </div>
+                  <span className="truncate max-w-[100px]">
+                    {user?.displayName || user?.email?.split("@")[0] || "Account"}
+                  </span>
+                </button>
+              </div>
+              <button
+                onClick={toggleTheme}
+                className="p-2 shrink-0 rounded-lg hover:bg-[var(--elevated-bg)]/50 hover-pop transition-colors cursor-pointer"
+                title={theme === "dark" ? "Light mode" : "Dark mode"}
+              >
+                {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+              </button>
+            </div>
+        </div>
+        </div>
+        </aside>
+        </div>
+        </div>
+        )}
+
+        {/* Mobile floating toggle button */}
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="fixed top-3 left-3 z-40 md:hidden p-2.5 rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 shadow-xl hover:bg-[var(--elevated-bg)]/50 transition-all cursor-pointer hover-pop"
+            title="Open sidebar"
+          >
+            <Menu size={20} />
+          </button>
+        )}
 
         <div className="flex-1 overflow-hidden rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)]/60 border border-white/10 shadow-xl">
           {showReminderList && editingReminder ? (
@@ -434,8 +527,8 @@ function AppContent() {
 
       {(browseOpen || browseClosing) && (
         <>
-          <div className={`absolute top-3 left-3 bottom-3 w-80 max-w-80 z-20 rounded-2xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] ${browseClosing ? "animate-fade-out" : "animate-fade-in"}`} />
-          <div className={`absolute top-3 left-3 bottom-3 w-80 max-w-80 z-30 rounded-2xl overflow-hidden shadow-2xl ${browseClosing ? "animate-slide-out" : "animate-slide-in"}`}>
+          <div className={`absolute top-3 left-3 bottom-3 w-[calc(100%-24px)] md:w-80 z-20 rounded-2xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] ${browseClosing ? "animate-fade-out" : "animate-fade-in"}`} />
+          <div className={`absolute top-3 left-3 bottom-3 w-[calc(100%-24px)] md:w-80 z-30 rounded-2xl overflow-hidden shadow-2xl ${browseClosing ? "animate-slide-out" : "animate-slide-in"}`}>
           <BrowsePanel
             type={browseType}
             folderId={browseFolderId}

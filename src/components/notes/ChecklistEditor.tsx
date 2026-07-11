@@ -246,7 +246,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose }: ChecklistEd
   return (
     <div className="relative h-full flex flex-col">
       {/* Top toolbar */}
-      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-16 pt-3">
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 md:px-16 pt-3">
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
           <div className="relative z-20">
@@ -349,7 +349,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose }: ChecklistEd
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 pl-16 pt-20 pr-16 pb-16 overflow-y-auto">
+      <div className="flex-1 pl-4 md:pl-16 pt-20 pr-4 md:pr-16 pb-16 overflow-y-auto">
         {/* Title */}
         <input
           ref={titleRef}
@@ -492,7 +492,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose }: ChecklistEd
       </div>
 
       {/* Bottom toolbar */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 px-16 pb-3 flex justify-center">
+      <div className="absolute bottom-0 left-0 right-0 z-10 px-4 md:px-16 pb-3 flex justify-center">
         <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full">
           <GlassBtn
             title="Bold"
