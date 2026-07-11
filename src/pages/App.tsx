@@ -208,6 +208,7 @@ function AppContent() {
   };
 
   const handleOpenBrowse = (type: "notes" | "checklists" | "reminders", folderId: string | null) => {
+    setCreateMenu(null);
     setBrowseType(type);
     setBrowseFolderId(folderId);
     setBrowseClosing(false);
@@ -527,8 +528,8 @@ function AppContent() {
 
       {(browseOpen || browseClosing) && (
         <>
-          <div className={`absolute top-3 left-3 bottom-3 w-[calc(100%-24px)] md:w-80 z-20 rounded-2xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] ${browseClosing ? "animate-fade-out" : "animate-fade-in"}`} />
-          <div className={`absolute top-3 left-3 bottom-3 w-[calc(100%-24px)] md:w-80 z-30 rounded-2xl overflow-hidden shadow-2xl ${browseClosing ? "animate-slide-out" : "animate-slide-in"}`}>
+          <div className={`absolute top-3 left-0 right-0 bottom-3 md:left-3 md:w-80 z-40 rounded-2xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] ${browseClosing ? "animate-fade-out" : "animate-fade-in"}`} />
+          <div className={`absolute top-3 left-0 right-0 bottom-3 md:left-3 md:w-80 z-50 rounded-2xl overflow-hidden shadow-2xl ${browseClosing ? "animate-slide-out" : "animate-slide-in"}`}>
           <BrowsePanel
             type={browseType}
             folderId={browseFolderId}

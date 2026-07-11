@@ -1,6 +1,7 @@
 import type { Folder, Note, Reminder } from "../../types";
 import GlassSurface from "../GlassSurface";
 import { useTheme } from "../../context/ThemeContext";
+import { useEffect, useRef } from "react";
 import {
   Folder as FolderIcon,
   FileText,
@@ -276,12 +277,22 @@ export function CreateMenu({
   position: { top: number; left: number };
 }) {
   const { theme } = useTheme();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    const id = setTimeout(() => document.addEventListener("click", handler), 0);
+    return () => { clearTimeout(id); document.removeEventListener("click", handler); };
+  }, [onClose]);
+
   return (
-    <>
-      <div className="fixed inset-0 z-40" onClick={onClose} />
-      <div className="relative" style={{ top: position.top, left: position.left, position: 'fixed', zIndex: 50, minWidth: 140 }}>
-        <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
-        <div className="relative z-20">
+    <div ref={menuRef} className="relative" style={{ top: position.top, left: position.left, position: 'fixed', zIndex: 50, minWidth: 140 }}>
+      <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
+      <div className="relative z-20">
       <GlassSurface
         borderRadius={12}
         width="auto"
@@ -323,6 +334,5 @@ export function CreateMenu({
       </GlassSurface>
       </div>
       </div>
-    </>
   );
 }
