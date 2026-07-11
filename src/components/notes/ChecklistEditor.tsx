@@ -39,9 +39,10 @@ interface ChecklistEditorProps {
   note: Note;
   onUpdate: (note: Note) => void;
   onClose?: () => void;
+  onDelete?: (id: string) => void;
 }
 
-export default function ChecklistEditor({ note, onUpdate, onClose }: ChecklistEditorProps) {
+export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: ChecklistEditorProps) {
   const { theme } = useTheme();
   const [title, setTitle] = useState(note.title);
   const [items, setItems] = useState<ChecklistItem[]>(note.checklist || []);
@@ -49,6 +50,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose }: ChecklistEd
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [displayStatus, setDisplayStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [showMenu, setShowMenu] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -165,11 +167,20 @@ export default function ChecklistEditor({ note, onUpdate, onClose }: ChecklistEd
   const firstLine = title || "Checklist";
 
   const menuItems = [
-    { icon: Lock, label: "Lock" },
-    { icon: Share2, label: "Share" },
-    { icon: Trash2, label: "Delete", danger: true },
-    { icon: Search, label: "Find in notes" },
-    { icon: Pin, label: "Pin" },
+    { icon: Lock, label: "Lock", action: () => {} },
+    { icon: Share2, label: "Share", action: () => {
+      const text = items.map(i => `[${i.checked ? "x" : " "}] ${i.text}`).join("\n");
+      if (navigator.share) navigator.share({ title, text });
+    }},
+    { icon: Trash2, label: "Delete", danger: true, action: () => {
+      setShowMenu(false);
+      onDelete?.(note.id);
+      onClose?.();
+    }},
+    { icon: Search, label: "Find in notes", action: () => {} },
+    { icon: Pin, label: note.isPinned ? "Unpin" : "Pin", action: () => {
+      onUpdate({ ...note, isPinned: !note.isPinned, updatedAt: Date.now() });
+    }},
   ];
 
   useLayoutEffect(() => {
@@ -241,6 +252,17 @@ export default function ChecklistEditor({ note, onUpdate, onClose }: ChecklistEd
       if (saveTimer.current) clearTimeout(saveTimer.current);
       if (hideTimer.current) clearTimeout(hideTimer.current);
     };
+  }, []);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const handler = () => {
+      const diff = window.innerHeight - vv.height;
+      setKeyboardHeight(diff > 0 ? diff : 0);
+    };
+    vv.addEventListener("resize", handler);
+    return () => vv.removeEventListener("resize", handler);
   }, []);
 
   return (
@@ -329,7 +351,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose }: ChecklistEd
                         {menuItems.map((item) => (
                           <button
                             key={item.label}
-                            onClick={() => setShowMenu(false)}
+                            onClick={() => { item.action(); setShowMenu(false); }}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover-pop cursor-pointer [&>svg]:stroke-[2.5] ${
                               item.danger ? "text-red-400 hover:bg-red-500/10" : "hover:bg-white/5"
                             }`}
@@ -349,7 +371,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose }: ChecklistEd
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 pl-4 md:pl-16 pt-20 pr-4 md:pr-16 pb-16 overflow-y-auto">
+      <div className="flex-1 pl-4 md:pl-16 pt-20 pr-4 md:pr-16 overflow-y-auto" style={{ paddingBottom: `${64 + keyboardHeight}px` }}>
         {/* Title */}
         <input
           ref={titleRef}
@@ -492,7 +514,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose }: ChecklistEd
       </div>
 
       {/* Bottom toolbar */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 px-4 md:px-16 pb-3 flex justify-center">
+      <div className="absolute left-0 right-0 z-10 px-4 md:px-16 pb-3 flex justify-center" style={{ bottom: `${keyboardHeight}px` }}>
         <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full">
           <GlassBtn
             title="Bold"

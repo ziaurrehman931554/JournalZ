@@ -215,6 +215,7 @@ function AppContent() {
     setBrowseFolderId(folderId);
     setBrowseClosing(false);
     setBrowseOpen(true);
+    setSidebarOpen(false);
   };
 
   const handleCloseBrowse = () => {
@@ -478,9 +479,9 @@ function AppContent() {
             />
           ) : selectedNote ? (
             selectedNote.type === "checklist" ? (
-              <ChecklistEditor note={selectedNote} onUpdate={updateNote} onClose={handleCloseNote} />
+              <ChecklistEditor note={selectedNote} onUpdate={updateNote} onClose={handleCloseNote} onDelete={deleteNote} />
             ) : (
-              <NoteEditor note={selectedNote} onUpdate={updateNote} onClose={handleCloseNote} />
+              <NoteEditor note={selectedNote} onUpdate={updateNote} onClose={handleCloseNote} onDelete={deleteNote} />
             )
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-gray-500 p-8">
@@ -530,7 +531,7 @@ function AppContent() {
 
       {(browseOpen || browseClosing) && (
         <>
-          <div className={`absolute top-3 left-0 right-0 bottom-3 md:left-3 md:w-80 z-40 rounded-2xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] ${browseClosing ? "animate-fade-out" : "animate-fade-in"}`} />
+          <div className={`absolute top-3 left-0 right-0 bottom-3 md:left-3 md:w-80 z-40 rounded-2xl bg-black/30 ${browseClosing ? "animate-fade-out" : "animate-fade-in"}`} />
           <div className={`absolute top-3 left-0 right-0 bottom-3 md:left-3 md:w-80 z-50 rounded-2xl overflow-hidden shadow-2xl ${browseClosing ? "animate-slide-out" : "animate-slide-in"}`}>
           <BrowsePanel
             type={browseType}
