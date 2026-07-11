@@ -5,7 +5,7 @@ import {
   List, ListOrdered, Table, ChevronDown, ArrowUpFromLine, ArrowDownToLine,
   ArrowLeftFromLine, ArrowRightFromLine, TableProperties
 } from "lucide-react";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import GlassSurface from "../GlassSurface";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -166,19 +166,21 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
 
   const isChecklist = note.type === "checklist";
 
+  const editorExtensions = useMemo(() => [
+    StarterKit,
+    UnderlineExt,
+    TableExt.configure({ resizable: true }),
+    TableRow,
+    TableCell,
+    TableHeader,
+    TextStyle,
+    FontFamily,
+    FontSize,
+    Placeholder.configure({ placeholder: "Start writing..." }),
+  ], []);
+
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      UnderlineExt,
-      TableExt.configure({ resizable: true }),
-      TableRow,
-      TableCell,
-      TableHeader,
-      TextStyle,
-      FontFamily,
-      FontSize,
-      Placeholder.configure({ placeholder: "Start writing..." }),
-    ],
+    extensions: editorExtensions,
     content: note.content || "",
     onUpdate: () => {
       const n = noteRef.current;

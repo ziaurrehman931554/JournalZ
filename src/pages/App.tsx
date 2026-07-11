@@ -180,6 +180,7 @@ function AppContent() {
     const note = allNotes.find((n) => n.id === id);
     if (note) {
       setSelectedNote(note);
+      setCreateMenu(null);
       setBrowseOpen(false);
       setBrowseClosing(false);
     }
@@ -189,6 +190,7 @@ function AppContent() {
     const r = reminders.find((rem) => rem.id === id);
     if (r) {
       setEditingReminder(r);
+      setCreateMenu(null);
       setSelectedView("reminders");
       setBrowseOpen(false);
       setBrowseClosing(false);
