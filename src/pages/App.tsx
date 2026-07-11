@@ -456,7 +456,7 @@ function AppContent() {
         )}
 
         {/* Mobile floating toggle button */}
-        {!sidebarOpen && !selectedNote && !editingReminder && (
+        {!sidebarOpen && !selectedNote && !editingReminder && !browseOpen && !browseClosing && (
           <button
             onClick={() => setSidebarOpen(true)}
             className="fixed top-3 left-3 z-40 md:hidden p-2.5 rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 shadow-xl hover:bg-[var(--elevated-bg)]/50 transition-all cursor-pointer hover-pop"

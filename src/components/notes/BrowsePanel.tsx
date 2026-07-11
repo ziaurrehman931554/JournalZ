@@ -71,14 +71,14 @@ export default function BrowsePanel({
   return (
     <GlassSurface borderRadius={16} width="100%" height="100%" dark={theme === "dark"} padding={0}>
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+        <div className="flex items-center justify-between px-3 md:px-4 py-3 border-b border-white/10">
         <h2 className="font-semibold text-sm">{title}</h2>
         <button onClick={onClose} className="p-1 rounded-lg hover:bg-[var(--elevated-bg)]/50 hover-pop transition-colors cursor-pointer">
           <X size={16} />
         </button>
       </div>
 
-      <div className="px-4 py-2">
+      <div className="px-3 md:px-4 py-2">
         <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--surface-bg)] border border-gray-200/40 dark:border-white/10">
           <Search size={14} className="text-gray-500 shrink-0" />
           <input
@@ -96,7 +96,7 @@ export default function BrowsePanel({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-1">
+      <div className="flex-1 overflow-y-auto px-3 md:px-4 pb-4 space-y-1">
         {type === "reminders" ? (
           sortedReminders.length === 0 ? (
             <p className="text-sm text-gray-500 text-center pt-8">No reminders found</p>

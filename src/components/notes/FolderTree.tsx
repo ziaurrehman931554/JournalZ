@@ -278,16 +278,18 @@ export function CreateMenu({
 }) {
   const { theme } = useTheme();
   const menuRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        onClose();
+        onCloseRef.current();
       }
     };
-    const id = setTimeout(() => document.addEventListener("click", handler), 0);
-    return () => { clearTimeout(id); document.removeEventListener("click", handler); };
-  }, [onClose]);
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, []);
 
   return (
     <div ref={menuRef} className="relative" style={{ top: position.top, left: position.left, position: 'fixed', zIndex: 50, minWidth: 140 }}>
