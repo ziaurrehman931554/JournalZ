@@ -138,6 +138,10 @@ function AppContent() {
   };
 
   const handleOpenCreateMenu = (e: React.MouseEvent, folderId: string) => {
+    if (createMenu && createMenu.folderId === folderId) {
+      setCreateMenu(null);
+      return;
+    }
     const r = e.currentTarget.getBoundingClientRect();
     setCreateMenu({ position: { top: r.bottom + 4, left: r.left }, folderId });
   };
@@ -163,18 +167,12 @@ function AppContent() {
   };
 
   const handleCloseNote = () => {
-    if (selectedNote) {
-      if (!selectedNote.title) deleteNote(selectedNote.id);
-      addSyncToast(selectedNote.type === "checklist" ? "Checklist" : "Note", navigator.onLine);
-    }
+    if (selectedNote && !selectedNote.title) deleteNote(selectedNote.id);
     setSelectedNote(null);
   };
 
   const handleCancelReminder = () => {
-    if (editingReminder) {
-      if (!editingReminder.title && !editingReminder.description) deleteReminder(editingReminder.id);
-      addSyncToast("Reminder", navigator.onLine);
-    }
+    if (editingReminder && !editingReminder.title && !editingReminder.description) deleteReminder(editingReminder.id);
     setEditingReminder(null);
   };
 
@@ -455,7 +453,7 @@ function AppContent() {
         )}
 
         {/* Mobile floating toggle button */}
-        {!sidebarOpen && (
+        {!sidebarOpen && !selectedNote && !editingReminder && (
           <button
             onClick={() => setSidebarOpen(true)}
             className="fixed top-3 left-3 z-40 md:hidden p-2.5 rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 shadow-xl hover:bg-[var(--elevated-bg)]/50 transition-all cursor-pointer hover-pop"
@@ -481,18 +479,18 @@ function AppContent() {
             )
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-gray-500 p-8">
-              <div className="flex items-center gap-6 mb-8">
-                <button onClick={() => handleOpenBrowse("notes", null)} className="w-28 h-28 flex flex-col items-center justify-center gap-2 rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 hover:border-[var(--accent)]/30 hover-pop transition-all duration-200 cursor-pointer">
-                  <FileText size={32} className="text-[var(--accent)]" />
-                  <span className="text-sm">Notes</span>
+              <div className="flex items-center justify-center gap-3 md:gap-6 mb-8 flex-wrap">
+                <button onClick={() => handleOpenBrowse("notes", null)} className="w-20 h-20 md:w-28 md:h-28 flex flex-col items-center justify-center gap-1 md:gap-2 rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 hover:border-[var(--accent)]/30 hover-pop transition-all duration-200 cursor-pointer">
+                  <FileText size={24} className="md:w-8 md:h-8 text-[var(--accent)]" />
+                  <span className="text-[11px] md:text-sm">Notes</span>
                 </button>
-                <button onClick={() => handleOpenBrowse("checklists", null)} className="w-28 h-28 flex flex-col items-center justify-center gap-2 rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 hover:border-[var(--accent)]/30 hover-pop transition-all duration-200 cursor-pointer">
-                  <CheckSquare size={32} className="text-green-400" />
-                  <span className="text-sm">Checklists</span>
+                <button onClick={() => handleOpenBrowse("checklists", null)} className="w-20 h-20 md:w-28 md:h-28 flex flex-col items-center justify-center gap-1 md:gap-2 rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 hover:border-[var(--accent)]/30 hover-pop transition-all duration-200 cursor-pointer">
+                  <CheckSquare size={24} className="md:w-8 md:h-8 text-green-400" />
+                  <span className="text-[11px] md:text-sm">Checklists</span>
                 </button>
-                <button onClick={() => handleOpenBrowse("reminders", null)} className="w-28 h-28 flex flex-col items-center justify-center gap-2 rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 hover:border-[var(--accent)]/30 hover-pop transition-all duration-200 cursor-pointer">
-                  <Bell size={32} className="text-yellow-400" />
-                  <span className="text-sm">Reminders</span>
+                <button onClick={() => handleOpenBrowse("reminders", null)} className="w-20 h-20 md:w-28 md:h-28 flex flex-col items-center justify-center gap-1 md:gap-2 rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)] border border-white/10 hover:border-[var(--accent)]/30 hover-pop transition-all duration-200 cursor-pointer">
+                  <Bell size={24} className="md:w-8 md:h-8 text-yellow-400" />
+                  <span className="text-[11px] md:text-sm">Reminders</span>
                 </button>
               </div>
               <p className="text-lg font-medium mb-1">Select or create a note</p>
@@ -586,7 +584,7 @@ function AppContent() {
       {profileOpen && profileRect && (
         <div ref={menuRef} className="fixed inset-0 z-50">
           <div className="fixed inset-0" onClick={() => setProfileOpen(false)} />
-          <div className="relative" style={{ position: 'fixed', top: profileRect.top - 8, left: profileRect.left + profileRect.width / 2, transform: 'translateX(-50%) translateY(-100%)' }}>
+          <div className="relative" style={{ position: 'fixed', top: profileRect.top - 8, left: Math.max(120, Math.min(profileRect.left + profileRect.width / 2, window.innerWidth - 120)), transform: 'translateX(-50%) translateY(-100%)' }}>
             <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
             <div className="relative z-20">
           <GlassSurface borderRadius={12} width="auto" height="auto" dark={theme === "dark"} padding={0}>
