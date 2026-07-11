@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 
 interface Shape {
@@ -15,6 +15,12 @@ export default function AnimatedBackground() {
   const containerRef = useRef<HTMLDivElement>(null);
   const shapesRef = useRef<Shape[]>([]);
   const frameRef = useRef<number>(0);
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: none) and (pointer: coarse)");
+    setIsTouch(mq.matches);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -27,7 +33,6 @@ export default function AnimatedBackground() {
     const count = 8;
     const items: Shape[] = [];
     const isDark = document.documentElement.classList.contains("dark");
-
     const colors = isDark ? darkColors : lightColors;
 
     for (let i = 0; i < count; i++) {
@@ -63,6 +68,12 @@ export default function AnimatedBackground() {
 
     shapesRef.current = items;
 
+    if (isTouch) {
+      return () => {
+        for (const s of items) s.el.remove();
+      };
+    }
+
     const animate = () => {
       for (const s of items) {
         s.x += s.vx;
@@ -87,7 +98,7 @@ export default function AnimatedBackground() {
       cancelAnimationFrame(frameRef.current);
       for (const s of items) s.el.remove();
     };
-  }, [theme]);
+  }, [theme, isTouch]);
 
   return (
     <div
