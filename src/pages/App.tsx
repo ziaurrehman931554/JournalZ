@@ -183,6 +183,7 @@ function AppContent() {
       setCreateMenu(null);
       setBrowseOpen(false);
       setBrowseClosing(false);
+      setSidebarOpen(false);
     }
   };
 
@@ -194,6 +195,7 @@ function AppContent() {
       setSelectedView("reminders");
       setBrowseOpen(false);
       setBrowseClosing(false);
+      setSidebarOpen(false);
     }
   };
 

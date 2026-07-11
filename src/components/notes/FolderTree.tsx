@@ -292,9 +292,9 @@ export function CreateMenu({
   }, []);
 
   return (
-    <div ref={menuRef} className="relative" style={{ top: position.top, left: position.left, position: 'fixed', zIndex: 50, minWidth: 140 }}>
-      <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
-      <div className="relative z-20">
+    <div ref={menuRef} className="relative pointer-events-none" style={{ top: position.top, left: position.left, position: 'fixed', zIndex: 50, minWidth: 140 }}>
+      <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10 pointer-events-none" />
+      <div className="relative z-20 pointer-events-auto">
       <GlassSurface
         borderRadius={12}
         width="auto"
