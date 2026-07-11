@@ -70,7 +70,7 @@ export default function BrowsePanel({
 
   return (
     <GlassSurface borderRadius={16} width="100%" height="100%" dark={theme === "dark"} padding={0}>
-      <div className="h-full flex flex-col">
+      <div className="h-full w-full flex flex-col">
         <div className="flex items-center justify-between px-3 md:px-4 py-3 border-b border-white/10">
         <h2 className="font-semibold text-sm">{title}</h2>
         <button onClick={onClose} className="p-1 rounded-lg hover:bg-[var(--elevated-bg)]/50 hover-pop transition-colors cursor-pointer">

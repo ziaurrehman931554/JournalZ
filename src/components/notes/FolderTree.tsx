@@ -166,7 +166,7 @@ export default function FolderTree({
                     key={note.id}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-[var(--elevated-bg)]/50 hover-pop rounded-lg transition-all duration-200 animate-slide-down"
                     style={{ paddingLeft: `${28 + (depth + 1) * 20}px` }}
-                    onClick={(e) => { e.stopPropagation(); onSelectNote(note.id); }}
+                    onClick={() => onSelectNote(note.id)}
                   >
                     {note.type === "checklist" ? (
                       <CheckSquare size={14} className="shrink-0 text-yellow-400" />
@@ -183,7 +183,7 @@ export default function FolderTree({
                       selectedReminderId === r.id ? "bg-[var(--accent)]/10 font-medium" : "hover:bg-[var(--elevated-bg)]/50"
                     } hover-pop`}
                     style={{ paddingLeft: `${28 + (depth + 1) * 20}px` }}
-                    onClick={(e) => { e.stopPropagation(); onSelectReminder(r.id); }}
+                    onClick={() => onSelectReminder(r.id)}
                   >
                     <Bell size={14} className="shrink-0 text-yellow-400" />
                     <span className="truncate text-gray-700 dark:text-gray-300">{r.title || "Reminder"}</span>

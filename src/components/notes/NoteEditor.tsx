@@ -167,7 +167,7 @@ export default function NoteEditor({ note, onUpdate, onClose }: NoteEditorProps)
   const isChecklist = note.type === "checklist";
 
   const editorExtensions = useMemo(() => [
-    StarterKit,
+    StarterKit.configure({ underline: false }),
     UnderlineExt,
     TableExt.configure({ resizable: true }),
     TableRow,
