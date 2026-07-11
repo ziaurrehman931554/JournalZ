@@ -8,11 +8,21 @@ export async function requestNotificationPermission(): Promise<boolean> {
 }
 
 export async function registerServiceWorker(): Promise<void> {
-  if ("serviceWorker" in navigator) {
-    try {
-      await navigator.serviceWorker.register("/sw.js");
-    } catch {
-      // service worker registration failed
-    }
+  if (!("serviceWorker" in navigator)) return;
+
+  try {
+    const registration = await navigator.serviceWorker.register("/sw.js");
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      window.location.reload();
+    });
+
+    const checkForUpdates = () => {
+      registration.update().catch(() => {});
+    };
+    checkForUpdates();
+    setInterval(checkForUpdates, 30 * 60 * 1000);
+  } catch {
+    // service worker registration failed
   }
 }
