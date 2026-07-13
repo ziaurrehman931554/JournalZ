@@ -10,6 +10,18 @@ interface Toast {
   description?: string;
 }
 
+function showOsNotification(title: string, body: string | undefined, tag: string) {
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then((reg) => {
+      reg.showNotification(title, { body, icon: "/icon-192.png", tag });
+    });
+  } else {
+    new Notification(title, { body, icon: "/icon-192.png" });
+  }
+}
+
 export function useReminderWatcher(reminders: Reminder[], onUpdate: (r: Reminder) => void) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const notifiedRef = useRef<Set<string>>(new Set());
@@ -37,9 +49,7 @@ export function useReminderWatcher(reminders: Reminder[], onUpdate: (r: Reminder
         const toastId = crypto.randomUUID();
         setToasts(prev => [...prev, { id: toastId, reminderId: r.id, title: r.title, description: r.description || undefined }]);
 
-        if ("Notification" in window && Notification.permission === "granted") {
-          new Notification(r.title, { body: r.description || undefined, icon: "/icon-192.png" });
-        }
+        showOsNotification(r.title, r.description || undefined, r.id);
 
         onUpdate({ ...r, notifiedAt: now });
       }

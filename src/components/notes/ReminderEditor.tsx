@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { Reminder } from "../../types";
 import { Trash2, Calendar, Clock, MapPin, Tag, Save, X } from "lucide-react";
 import { requestNotificationPermission } from "../../services/notifications";
@@ -14,7 +14,6 @@ export default function ReminderEditor({ reminder, onSave, onDelete, onCancel }:
   const [title, setTitle] = useState(reminder.title || "");
   const [description, setDescription] = useState(reminder.description || "");
 
-  useEffect(() => { requestNotificationPermission(); }, []);
   const [dueDate, setDueDate] = useState(
     reminder.dueDate ? new Date(reminder.dueDate).toISOString().slice(0, 10) : ""
   );
@@ -29,6 +28,7 @@ export default function ReminderEditor({ reminder, onSave, onDelete, onCancel }:
 
   const handleSave = () => {
     if (!title.trim()) return;
+    requestNotificationPermission();
     const due = dueDate
       ? new Date(`${dueDate}T${dueTime || "12:00"}`).getTime()
       : Date.now() + 86400000;

@@ -196,6 +196,9 @@ function AppContent() {
       setBrowseOpen(false);
       setBrowseClosing(false);
       setSidebarOpen(false);
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
     }
   };
 
@@ -514,6 +517,9 @@ function AppContent() {
             setCreateMenu(null);
             if (type === "folder") handleAddFolder(fid);
             else if (type === "reminder") {
+              if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission();
+              }
               setEditingReminder({
                 id: crypto.randomUUID(),
                 folderId: fid || undefined,
