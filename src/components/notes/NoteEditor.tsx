@@ -6,6 +6,7 @@ import {
   ArrowLeftFromLine, ArrowRightFromLine, TableProperties
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useTheme } from "../../context/ThemeContext";
 import GlassSurface from "../GlassSurface";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -458,6 +459,123 @@ export default function NoteEditor({ note, onUpdate, onClose, onDelete }: NoteEd
     );
   }
 
+  const toolbarPortal = createPortal(
+    <div className="fixed z-[200] px-4 md:px-16 pb-3 flex justify-center pointer-events-none" style={{ bottom: `${keyboardHeight}px`, left: `${toolbarLeft}px`, right: 0 }}>
+      <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full pointer-events-auto">
+        <GlassBtn
+          title="Bold"
+          active={editor?.isActive("bold") ?? false}
+          onClick={() => editor?.chain().focus().toggleBold().run()}
+        >
+          <Bold size={15} />
+        </GlassBtn>
+
+        <GlassBtn
+          title="Italic"
+          active={editor?.isActive("italic") ?? false}
+          onClick={() => editor?.chain().focus().toggleItalic().run()}
+        >
+          <Italic size={15} />
+        </GlassBtn>
+
+        <GlassBtn
+          title="Underline"
+          active={editor?.isActive("underline") ?? false}
+          onClick={() => editor?.chain().focus().toggleUnderline().run()}
+        >
+          <Underline size={15} />
+        </GlassBtn>
+
+        <GlassBtn
+          title="Strikethrough"
+          active={editor?.isActive("strike") ?? false}
+          onClick={() => editor?.chain().focus().toggleStrike().run()}
+        >
+          <Strikethrough size={15} />
+        </GlassBtn>
+
+        <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
+
+        <GlassBtn
+          title="Bullet List"
+          active={editor?.isActive("bulletList") ?? false}
+          onClick={() => editor?.chain().focus().toggleBulletList().run()}
+        >
+          <List size={15} />
+        </GlassBtn>
+
+        <GlassBtn
+          title="Ordered List"
+          active={editor?.isActive("orderedList") ?? false}
+          onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+        >
+          <ListOrdered size={15} />
+        </GlassBtn>
+
+        <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
+
+        <div ref={tableBtnRef}>
+          <GlassBtn
+            title="Insert Table"
+            active={inTable}
+            onClick={() => setShowTableDialog(v => !v)}
+          >
+            <Table size={15} />
+          </GlassBtn>
+        </div>
+
+        {inTable && (
+          <>
+            <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
+
+            <GlassBtn title="Insert Row Above" active={false} onClick={() => editor?.chain().focus().addRowBefore().run()}>
+              <ArrowUpFromLine size={13} />
+            </GlassBtn>
+            <GlassBtn title="Insert Row Below" active={false} onClick={() => editor?.chain().focus().addRowAfter().run()}>
+              <ArrowDownToLine size={13} />
+            </GlassBtn>
+            <GlassBtn title="Insert Column Left" active={false} onClick={() => editor?.chain().focus().addColumnBefore().run()}>
+              <ArrowLeftFromLine size={13} />
+            </GlassBtn>
+            <GlassBtn title="Insert Column Right" active={false} onClick={() => editor?.chain().focus().addColumnAfter().run()}>
+              <ArrowRightFromLine size={13} />
+            </GlassBtn>
+            <GlassBtn title="Delete Row" active={false} onClick={() => editor?.chain().focus().deleteRow().run()}>
+              <Trash2 size={13} />
+            </GlassBtn>
+            <GlassBtn title="Delete Column" active={false} onClick={() => editor?.chain().focus().deleteColumn().run()}>
+              <Trash2 size={13} className="rotate-90" />
+            </GlassBtn>
+            <GlassBtn title="Delete Table" active={false} onClick={() => editor?.chain().focus().deleteTable().run()}>
+              <TableProperties size={13} />
+            </GlassBtn>
+          </>
+        )}
+
+        <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
+
+        <div ref={fontFamilyBtnRef}>
+          <GlassDropdownTrigger title="Font Family" onClick={() => setShowFontFamily(v => !v)}>
+            <span style={{ fontFamily: editor?.getAttributes("textStyle").fontFamily || "inherit" }} className="text-xs">
+              {FONT_FAMILIES.find(f => f.value === editor?.getAttributes("textStyle").fontFamily)?.label || "Font"}
+            </span>
+          </GlassDropdownTrigger>
+        </div>
+
+        <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
+
+        <div ref={fontSizeBtnRef}>
+          <GlassDropdownTrigger title="Font Size" onClick={() => setShowFontSize(v => !v)}>
+            <span className="text-xs min-w-[20px] text-center">
+              {editor?.getAttributes("textStyle").fontSize?.replace("px", "") || "16"}
+            </span>
+          </GlassDropdownTrigger>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+
   return (
     <div className="relative h-full flex flex-col">
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 md:px-16 pt-3">
@@ -567,119 +685,7 @@ export default function NoteEditor({ note, onUpdate, onClose, onDelete }: NoteEd
         <EditorContent editor={editor} className="Tiptap min-h-full" />
       </div>
 
-      <div className="fixed z-50 px-4 md:px-16 pb-3 flex justify-center pointer-events-none" style={{ bottom: `${keyboardHeight}px`, left: `${toolbarLeft}px`, right: 0 }}>
-        <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full pointer-events-auto">
-          <GlassBtn
-            title="Bold"
-            active={editor?.isActive("bold") ?? false}
-            onClick={() => editor?.chain().focus().toggleBold().run()}
-          >
-            <Bold size={15} />
-          </GlassBtn>
-
-          <GlassBtn
-            title="Italic"
-            active={editor?.isActive("italic") ?? false}
-            onClick={() => editor?.chain().focus().toggleItalic().run()}
-          >
-            <Italic size={15} />
-          </GlassBtn>
-
-          <GlassBtn
-            title="Underline"
-            active={editor?.isActive("underline") ?? false}
-            onClick={() => editor?.chain().focus().toggleUnderline().run()}
-          >
-            <Underline size={15} />
-          </GlassBtn>
-
-          <GlassBtn
-            title="Strikethrough"
-            active={editor?.isActive("strike") ?? false}
-            onClick={() => editor?.chain().focus().toggleStrike().run()}
-          >
-            <Strikethrough size={15} />
-          </GlassBtn>
-
-          <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
-
-          <GlassBtn
-            title="Bullet List"
-            active={editor?.isActive("bulletList") ?? false}
-            onClick={() => editor?.chain().focus().toggleBulletList().run()}
-          >
-            <List size={15} />
-          </GlassBtn>
-
-          <GlassBtn
-            title="Ordered List"
-            active={editor?.isActive("orderedList") ?? false}
-            onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-          >
-            <ListOrdered size={15} />
-          </GlassBtn>
-
-          <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
-
-          <div ref={tableBtnRef}>
-            <GlassBtn
-              title="Insert Table"
-              active={inTable}
-              onClick={() => setShowTableDialog(v => !v)}
-            >
-              <Table size={15} />
-            </GlassBtn>
-          </div>
-
-          {inTable && (
-            <>
-              <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
-
-              <GlassBtn title="Insert Row Above" active={false} onClick={() => editor?.chain().focus().addRowBefore().run()}>
-                <ArrowUpFromLine size={13} />
-              </GlassBtn>
-              <GlassBtn title="Insert Row Below" active={false} onClick={() => editor?.chain().focus().addRowAfter().run()}>
-                <ArrowDownToLine size={13} />
-              </GlassBtn>
-              <GlassBtn title="Insert Column Left" active={false} onClick={() => editor?.chain().focus().addColumnBefore().run()}>
-                <ArrowLeftFromLine size={13} />
-              </GlassBtn>
-              <GlassBtn title="Insert Column Right" active={false} onClick={() => editor?.chain().focus().addColumnAfter().run()}>
-                <ArrowRightFromLine size={13} />
-              </GlassBtn>
-              <GlassBtn title="Delete Row" active={false} onClick={() => editor?.chain().focus().deleteRow().run()}>
-                <Trash2 size={13} />
-              </GlassBtn>
-              <GlassBtn title="Delete Column" active={false} onClick={() => editor?.chain().focus().deleteColumn().run()}>
-                <Trash2 size={13} className="rotate-90" />
-              </GlassBtn>
-              <GlassBtn title="Delete Table" active={false} onClick={() => editor?.chain().focus().deleteTable().run()}>
-                <TableProperties size={13} />
-              </GlassBtn>
-            </>
-          )}
-
-          <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
-
-          <div ref={fontFamilyBtnRef}>
-            <GlassDropdownTrigger title="Font Family" onClick={() => setShowFontFamily(v => !v)}>
-              <span style={{ fontFamily: editor?.getAttributes("textStyle").fontFamily || "inherit" }} className="text-xs">
-                {FONT_FAMILIES.find(f => f.value === editor?.getAttributes("textStyle").fontFamily)?.label || "Font"}
-              </span>
-            </GlassDropdownTrigger>
-          </div>
-
-          <div className="w-px h-5 bg-white/10 mx-0.5 shrink-0" />
-
-          <div ref={fontSizeBtnRef}>
-            <GlassDropdownTrigger title="Font Size" onClick={() => setShowFontSize(v => !v)}>
-              <span className="text-xs min-w-[20px] text-center">
-                {editor?.getAttributes("textStyle").fontSize?.replace("px", "") || "16"}
-              </span>
-            </GlassDropdownTrigger>
-          </div>
-        </div>
-      </div>
+      {toolbarPortal}
 
       {/* Table dialog overlay */}
       {showTableDialog && (

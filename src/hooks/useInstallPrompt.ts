@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getDeferredPrompt } from "../main";
 
 interface InstallPromptState {
   canInstall: boolean;
@@ -10,7 +11,7 @@ interface InstallPromptState {
 }
 
 export function useInstallPrompt(): InstallPromptState {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(() => getDeferredPrompt());
   const [dismissed, setDismissed] = useState(false);
 
   const isStandalone =
@@ -30,8 +31,8 @@ export function useInstallPrompt(): InstallPromptState {
 
   const install = () => {
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(() => setDeferredPrompt(null));
+      (deferredPrompt as any).prompt();
+      (deferredPrompt as any).userChoice.then(() => setDeferredPrompt(null));
     }
   };
 

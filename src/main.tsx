@@ -8,6 +8,18 @@ import "./index.css";
 
 registerServiceWorker();
 
+let deferredPrompt: Event | null = null;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+export function getDeferredPrompt() {
+  const p = deferredPrompt;
+  deferredPrompt = null;
+  return p;
+}
+
 const basename = import.meta.env.BASE_URL.replace(/\/+$/, "");
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

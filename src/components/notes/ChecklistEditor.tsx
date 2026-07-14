@@ -4,6 +4,7 @@ import {
   Lock, Share2, Search, Pin, Bold, Italic, Underline, ShoppingCart,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 import { useTheme } from "../../context/ThemeContext";
 import GlassSurface from "../GlassSurface";
 
@@ -541,43 +542,46 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
       </div>
 
       {/* Bottom toolbar */}
-      <div className="fixed z-50 px-4 md:px-16 pb-3 flex justify-center pointer-events-none" style={{ bottom: `${keyboardHeight}px`, left: `${toolbarLeft}px`, right: 0 }}>
-        <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full pointer-events-auto">
-          <GlassBtn
-            title="Bold"
-            active={false}
-            onClick={() => execFormat("bold")}
-          >
-            <Bold size={15} />
-          </GlassBtn>
+      {createPortal(
+        <div className="fixed z-[200] px-4 md:px-16 pb-3 flex justify-center pointer-events-none" style={{ bottom: `${keyboardHeight}px`, left: `${toolbarLeft}px`, right: 0 }}>
+          <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full pointer-events-auto">
+            <GlassBtn
+              title="Bold"
+              active={false}
+              onClick={() => execFormat("bold")}
+            >
+              <Bold size={15} />
+            </GlassBtn>
 
-          <GlassBtn
-            title="Italic"
-            active={false}
-            onClick={() => execFormat("italic")}
-          >
-            <Italic size={15} />
-          </GlassBtn>
+            <GlassBtn
+              title="Italic"
+              active={false}
+              onClick={() => execFormat("italic")}
+            >
+              <Italic size={15} />
+            </GlassBtn>
 
-          <GlassBtn
-            title="Underline"
-            active={false}
-            onClick={() => execFormat("underline")}
-          >
-            <Underline size={15} />
-          </GlassBtn>
+            <GlassBtn
+              title="Underline"
+              active={false}
+              onClick={() => execFormat("underline")}
+            >
+              <Underline size={15} />
+            </GlassBtn>
 
-          <div className="w-px h-6 bg-white/10 mx-1" />
+            <div className="w-px h-6 bg-white/10 mx-1" />
 
-          <GlassBtn
-            title="Grocery mode"
-            active={groceryMode}
-            onClick={toggleGroceryMode}
-          >
-            <ShoppingCart size={15} />
-          </GlassBtn>
-        </div>
-      </div>
+            <GlassBtn
+              title="Grocery mode"
+              active={groceryMode}
+              onClick={toggleGroceryMode}
+            >
+              <ShoppingCart size={15} />
+            </GlassBtn>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
