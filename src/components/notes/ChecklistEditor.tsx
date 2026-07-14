@@ -51,7 +51,8 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
   const [displayStatus, setDisplayStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [showMenu, setShowMenu] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const layoutHeightRef = useRef(window.innerHeight);
+  const [toolbarLeft, setToolbarLeft] = useState(0);
+  const maxViewportHeightRef = useRef(window.innerHeight);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -259,11 +260,36 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
     const vv = window.visualViewport;
     if (!vv) return;
     const handler = () => {
-      const diff = layoutHeightRef.current - vv.height;
+      if (window.innerHeight > maxViewportHeightRef.current) {
+        maxViewportHeightRef.current = window.innerHeight;
+      }
+      const diff = Math.max(
+        window.innerHeight - vv.height,
+        maxViewportHeightRef.current - vv.height
+      );
       setKeyboardHeight(diff > 0 ? diff : 0);
     };
+    const resetMax = () => {
+      maxViewportHeightRef.current = window.innerHeight;
+    };
     vv.addEventListener("resize", handler);
-    return () => vv.removeEventListener("resize", handler);
+    window.addEventListener("orientationchange", resetMax);
+    return () => {
+      vv.removeEventListener("resize", handler);
+      window.removeEventListener("orientationchange", resetMax);
+    };
+  }, []);
+
+  useEffect(() => {
+    const editor = document.querySelector(".flex-1.overflow-hidden.rounded-2xl");
+    if (!editor) return;
+    const updatePos = () => {
+      const rect = editor.getBoundingClientRect();
+      setToolbarLeft(rect.left);
+    };
+    updatePos();
+    window.addEventListener("resize", updatePos);
+    return () => window.removeEventListener("resize", updatePos);
   }, []);
 
   return (
@@ -515,7 +541,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
       </div>
 
       {/* Bottom toolbar */}
-      <div className="fixed left-0 right-0 z-50 px-4 md:px-16 pb-3 flex justify-center pointer-events-none" style={{ bottom: `${keyboardHeight}px` }}>
+      <div className="fixed z-50 px-4 md:px-16 pb-3 flex justify-center pointer-events-none" style={{ bottom: `${keyboardHeight}px`, left: `${toolbarLeft}px`, right: 0 }}>
         <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full pointer-events-auto">
           <GlassBtn
             title="Bold"

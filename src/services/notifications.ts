@@ -25,10 +25,8 @@ export async function registerServiceWorker(): Promise<void> {
       }
     });
 
-    if (registration.active) {
-      registration.active.postMessage({ type: "check-version", version: APP_VERSION });
-    }
-    registration.installing?.postMessage({ type: "check-version", version: APP_VERSION });
+    const reg = await navigator.serviceWorker.ready;
+    reg.active?.postMessage({ type: "check-version", version: APP_VERSION });
 
     const checkForUpdates = () => {
       registration.update().catch(() => {});
