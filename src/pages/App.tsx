@@ -24,10 +24,12 @@ import {
   Moon,
   Menu,
   X,
+  Download,
 } from "lucide-react";
 import logo from "../assets/logo.png";
 import type { Reminder } from "../types";
 import { useReminderWatcher } from "../hooks/useReminderWatcher";
+import { useInstallPrompt } from "../hooks/useInstallPrompt";
 
 function AppContent() {
   const {
@@ -73,6 +75,7 @@ function AppContent() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { toasts, dismissToast } = useReminderWatcher(reminders, addReminder);
+  const installPwa = useInstallPrompt();
   const [syncToasts, setSyncToasts] = useState<Array<{id: string; title: string; description: string; type: "sync" | "sync-offline"}>>([]);
 
   const dismissSyncToast = useCallback((id: string) => {
@@ -638,6 +641,24 @@ function AppContent() {
             </div>
           </GlassSurface>
           </div>
+          </div>
+        </div>
+      )}
+
+      {/* Install PWA banner */}
+      {installPwa.canInstall && !installPwa.dismissed && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[110] w-[calc(100%-2rem)] max-w-sm">
+          <div className="rounded-xl backdrop-blur-2xl bg-[var(--surface-bg)]/90 border border-white/10 shadow-xl px-4 py-3 flex items-center gap-3">
+            <Download size={20} className="text-[var(--accent)] shrink-0" />
+            <p className="text-sm flex-1">
+              {installPwa.isIOS
+                ? "Install JournalZ — tap Share then \"Add to Home Screen\""
+                : "Install JournalZ for the best experience"}
+            </p>
+            {!installPwa.isIOS && (
+              <button onClick={installPwa.install} className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)] text-white hover-pop cursor-pointer">Install</button>
+            )}
+            <button onClick={installPwa.dismiss} className="p-1 rounded-lg hover:bg-white/10 cursor-pointer"><X size={14} /></button>
           </div>
         </div>
       )}

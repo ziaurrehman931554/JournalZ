@@ -51,6 +51,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
   const [displayStatus, setDisplayStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [showMenu, setShowMenu] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const layoutHeightRef = useRef(window.innerHeight);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -258,7 +259,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
     const vv = window.visualViewport;
     if (!vv) return;
     const handler = () => {
-      const diff = window.innerHeight - vv.height;
+      const diff = layoutHeightRef.current - vv.height;
       setKeyboardHeight(diff > 0 ? diff : 0);
     };
     vv.addEventListener("resize", handler);
@@ -514,8 +515,8 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
       </div>
 
       {/* Bottom toolbar */}
-      <div className="absolute left-0 right-0 z-10 px-4 md:px-16 pb-3 flex justify-center" style={{ bottom: `${keyboardHeight}px` }}>
-        <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full">
+      <div className="fixed left-0 right-0 z-50 px-4 md:px-16 pb-3 flex justify-center pointer-events-none" style={{ bottom: `${keyboardHeight}px` }}>
+        <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full pointer-events-auto">
           <GlassBtn
             title="Bold"
             active={false}

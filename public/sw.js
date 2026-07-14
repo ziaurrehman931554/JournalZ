@@ -1,4 +1,5 @@
 const CACHE_NAME = "journalz-v3";
+let appVersion = null;
 
 self.addEventListener("install", () => {
   self.skipWaiting();
@@ -28,6 +29,20 @@ self.addEventListener("activate", (event) => {
       ),
     ])
   );
+});
+
+self.addEventListener("message", (event) => {
+  const { type, version } = event.data || {};
+  if (type === "check-version") {
+    if (appVersion !== null && appVersion !== version) {
+      caches.delete(CACHE_NAME).then(() => {
+        clients.matchAll().then((clients) => {
+          clients.forEach((c) => c.postMessage({ type: "version-mismatch" }));
+        });
+      });
+    }
+    appVersion = version;
+  }
 });
 
 self.addEventListener("push", (event) => {
