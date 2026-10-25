@@ -39,7 +39,7 @@ function GlassBtn({ children, active, onClick, title, className = "" }: {
 interface ChecklistEditorProps {
   note: Note;
   onUpdate: (note: Note) => void;
-  onClose?: () => void;
+  onClose?: (note?: Note) => void;
   onDelete?: (id: string) => void;
 }
 
@@ -48,6 +48,12 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
   const [title, setTitle] = useState(note.title);
   const [items, setItems] = useState<ChecklistItem[]>(note.checklist || []);
   const [groceryMode, setGroceryMode] = useState(note.checklistGrocery || false);
+  const draftRef = useRef({
+    note,
+    title: note.title,
+    items: note.checklist || [],
+    groceryMode: note.checklistGrocery || false,
+  });
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [displayStatus, setDisplayStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [showMenu, setShowMenu] = useState(false);
@@ -61,8 +67,10 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
   const titleRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const prevPositionsRef = useRef<Map<string, number>>(new Map());
-  const noteRef = useRef(note);
-  noteRef.current = note;
+  const discardPendingSaveRef = useRef(false);
+  if (draftRef.current.note.id === note.id) {
+    draftRef.current = { ...draftRef.current, note };
+  }
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
 
@@ -71,21 +79,27 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
     return a.checked ? 1 : -1;
   });
 
+  const persistDraft = useCallback(async () => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = undefined;
+    const draft = draftRef.current;
+    await onUpdateRef.current({
+      ...draft.note,
+      title: draft.title,
+      content: "",
+      checklist: draft.items,
+      checklistGrocery: draft.groceryMode,
+      updatedAt: Date.now(),
+    });
+  }, []);
+
   const scheduleSave = useCallback(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setSaveStatus("saving");
     saveTimer.current = setTimeout(async () => {
+      saveTimer.current = undefined;
       try {
-        const n = noteRef.current;
-        const updater = onUpdateRef.current;
-        await updater({
-          ...n,
-          title,
-          content: "",
-          checklist: items,
-          checklistGrocery: groceryMode,
-          updatedAt: Date.now(),
-        });
+        await persistDraft();
         setSaveStatus("saved");
         if (hideTimer.current) clearTimeout(hideTimer.current);
         hideTimer.current = setTimeout(() => setSaveStatus("idle"), 2000);
@@ -93,39 +107,72 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
         setSaveStatus("error");
       }
     }, 800);
-  }, [title, items, groceryMode]);
+  }, [persistDraft]);
+
+  const flushSave = useCallback(async () => {
+    setSaveStatus("saving");
+    try {
+      await persistDraft();
+      setSaveStatus("saved");
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+      hideTimer.current = setTimeout(() => setSaveStatus("idle"), 2000);
+      return true;
+    } catch {
+      setSaveStatus("error");
+      return false;
+    }
+  }, [persistDraft]);
+
+  const updateItems = (nextItems: ChecklistItem[]) => {
+    draftRef.current = { ...draftRef.current, items: nextItems };
+    setItems(nextItems);
+    scheduleSave();
+  };
 
   const toggleItem = (id: string) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, checked: !i.checked } : i));
-    scheduleSave();
+    updateItems(draftRef.current.items.map(i => i.id === id ? { ...i, checked: !i.checked } : i));
   };
 
   const deleteItem = (id: string) => {
-    setItems(prev => prev.filter(i => i.id !== id));
-    scheduleSave();
+    updateItems(draftRef.current.items.filter(i => i.id !== id));
   };
 
   const updateItemText = (id: string, html: string) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, text: html } : i));
-    scheduleSave();
+    updateItems(draftRef.current.items.map(i => i.id === id ? { ...i, text: html } : i));
   };
 
   const updateItemSpecs = (id: string, html: string) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, specs: html } : i));
+    updateItems(draftRef.current.items.map(i => i.id === id ? { ...i, specs: html } : i));
+  };
+
+  const captureItemInput = (id: string, field: "text" | "specs", html: string) => {
+    draftRef.current = {
+      ...draftRef.current,
+      items: draftRef.current.items.map(i => i.id === id ? { ...i, [field]: html } : i),
+    };
     scheduleSave();
   };
 
+  const handleClose = async () => {
+    if (!(await flushSave())) return;
+    onClose?.({
+      ...draftRef.current.note,
+      title: draftRef.current.title,
+      checklist: draftRef.current.items,
+      checklistGrocery: draftRef.current.groceryMode,
+    });
+  };
+
   const insertItemAfter = (afterId: string) => {
-    const idx = items.findIndex(i => i.id === afterId);
+    const next = [...draftRef.current.items];
+    const idx = next.findIndex(i => i.id === afterId);
     const newItem: ChecklistItem = {
       id: crypto.randomUUID(),
       text: "",
       checked: false,
     };
-    const next = [...items];
     next.splice(idx + 1, 0, newItem);
-    setItems(next);
-    scheduleSave();
+    updateItems(next);
     setTimeout(() => focusItemAtEnd(newItem.id), 0);
   };
 
@@ -152,11 +199,10 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
   };
 
   const toggleGroceryMode = () => {
-    const next = !groceryMode;
+    const next = !draftRef.current.groceryMode;
+    draftRef.current = { ...draftRef.current, groceryMode: next };
     setGroceryMode(next);
-    const n = noteRef.current;
-    const updater = onUpdateRef.current;
-    updater({ ...n, checklistGrocery: next, updatedAt: Date.now() });
+    scheduleSave();
   };
 
   const execFormat = (command: string, value?: string) => {
@@ -171,10 +217,12 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
 
   const menuItems = [
     { icon: Share2, label: "Share", action: () => {
-      const text = items.map(i => `[${i.checked ? "x" : " "}] ${i.text}`).join("\n");
-      if (navigator.share) navigator.share({ title, text });
+      const text = draftRef.current.items.map(i => `[${i.checked ? "x" : " "}] ${i.text}${i.specs ? ` (${i.specs})` : ""}`).join("\n");
+      if (navigator.share) navigator.share({ title: draftRef.current.title, text });
     }},
     { icon: Trash2, label: "Delete", danger: true, action: () => {
+      discardPendingSaveRef.current = true;
+      if (saveTimer.current) clearTimeout(saveTimer.current);
       setShowMenu(false);
       onDelete?.(note.id);
       onClose?.();
@@ -219,6 +267,17 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
   }, [sortedItems]);
 
   useEffect(() => {
+    if (draftRef.current.note.id !== note.id) {
+      // Save the previous checklist before replacing its local draft.
+      if (saveTimer.current) void persistDraft();
+      discardPendingSaveRef.current = false;
+      draftRef.current = {
+        note,
+        title: note.title,
+        items: note.checklist || [],
+        groceryMode: note.checklistGrocery || false,
+      };
+    }
     setTitle(note.title);
     setItems(note.checklist || []);
     setSaveStatus("idle");
@@ -226,7 +285,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
     setShowMenu(false);
     // Draft state belongs to a checklist and should reset only when selecting another one.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [note.id]);
+  }, [note.id, persistDraft]);
 
   useEffect(() => {
     if (saveStatus !== "idle") {
@@ -252,10 +311,13 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
 
   useEffect(() => {
     return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+        if (!discardPendingSaveRef.current) void persistDraft();
+      }
       if (hideTimer.current) clearTimeout(hideTimer.current);
     };
-  }, []);
+  }, [persistDraft]);
 
   useEffect(() => {
     const vv = window.visualViewport;
@@ -299,7 +361,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
           <div className="relative z-20">
             <GlassSurface borderRadius={20} width="auto" height="auto" dark={theme === "dark"} padding={0}>
               <button
-                onClick={onClose}
+                onClick={() => { void handleClose(); }}
                 className="flex items-center justify-center p-2 rounded-full cursor-pointer hover-pop"
               >
                 <X size={22} />
@@ -402,17 +464,21 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
           ref={titleRef}
           type="text"
           value={title}
-          onChange={(e) => { setTitle(e.target.value); scheduleSave(); }}
+          onChange={(e) => {
+            const nextTitle = e.target.value;
+            draftRef.current = { ...draftRef.current, title: nextTitle };
+            setTitle(nextTitle);
+            scheduleSave();
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              if (items.length === 0) {
+              if (draftRef.current.items.length === 0) {
                 const newItem: ChecklistItem = { id: crypto.randomUUID(), text: "", checked: false };
-                setItems([newItem]);
-                scheduleSave();
+                updateItems([newItem]);
                 setTimeout(() => focusItemAtEnd(newItem.id), 0);
               } else {
-                const lastId = items[items.length - 1].id;
+                const lastId = draftRef.current.items[draftRef.current.items.length - 1].id;
                 insertItemAfter(lastId);
               }
             }
@@ -442,6 +508,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
                     contentEditable
                     suppressContentEditableWarning
                     data-item-id={item.id}
+                    onInput={(e) => captureItemInput(item.id, "text", e.currentTarget.innerHTML === "<br>" ? "" : e.currentTarget.innerHTML)}
                     onBlur={(e) => {
                       const html = e.currentTarget.innerHTML === "<br>" ? "" : e.currentTarget.innerHTML;
                       if (html !== item.text) updateItemText(item.id, html);
@@ -474,6 +541,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
                     contentEditable
                     suppressContentEditableWarning
                     data-item-specs-id={item.id}
+                    onInput={(e) => captureItemInput(item.id, "specs", e.currentTarget.innerHTML === "<br>" ? "" : e.currentTarget.innerHTML)}
                     onBlur={(e) => {
                       const html = e.currentTarget.innerHTML === "<br>" ? "" : e.currentTarget.innerHTML;
                       if (html !== item.specs) updateItemSpecs(item.id, html);
@@ -501,6 +569,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
                   contentEditable
                   suppressContentEditableWarning
                   data-item-id={item.id}
+                  onInput={(e) => captureItemInput(item.id, "text", e.currentTarget.innerHTML === "<br>" ? "" : e.currentTarget.innerHTML)}
                   onBlur={(e) => {
                     const html = e.currentTarget.innerHTML === "<br>" ? "" : e.currentTarget.innerHTML;
                     if (html !== item.text) updateItemText(item.id, html);

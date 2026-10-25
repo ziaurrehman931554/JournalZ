@@ -9,6 +9,7 @@ import NotificationToast from "../components/NotificationToast";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -27,7 +28,7 @@ import {
   Download,
 } from "lucide-react";
 import logo from "../assets/logo.png";
-import type { Reminder } from "../types";
+import type { Note, Reminder } from "../types";
 import { useReminderWatcher } from "../hooks/useReminderWatcher";
 import { useInstallPrompt } from "../hooks/useInstallPrompt";
 
@@ -70,8 +71,8 @@ function AppContent() {
     folderId: string;
   } | null>(null);
   const [profileRect, setProfileRect] = useState<{ top: number; left: number; width: number } | null>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
-  const profileButtonRef = useRef<HTMLButtonElement>(null);
+  const desktopProfileButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileProfileButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { toasts, dismissToast } = useReminderWatcher(reminders, addReminder);
@@ -91,9 +92,10 @@ function AppContent() {
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (profileButtonRef.current && !profileButtonRef.current.contains(e.target as Node) &&
-          profileRef.current && !profileRef.current.contains(e.target as Node) &&
-          menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const clickedProfileButton = desktopProfileButtonRef.current?.contains(target) ||
+        mobileProfileButtonRef.current?.contains(target);
+      if (!clickedProfileButton && menuRef.current && !menuRef.current.contains(target)) {
         setProfileOpen(false);
       }
     };
@@ -169,8 +171,9 @@ function AppContent() {
     }
   };
 
-  const handleCloseNote = () => {
-    if (selectedNote && !selectedNote.title) deleteNote(selectedNote.id);
+  const handleCloseNote = (closingNote?: Note) => {
+    const noteToClose = closingNote || selectedNote;
+    if (noteToClose && !noteToClose.title) deleteNote(noteToClose.id);
     setSelectedNote(null);
   };
 
@@ -233,13 +236,10 @@ function AppContent() {
   };
 
   const handleProfileClick = (e: React.MouseEvent) => {
-    if (!sidebarOpen) {
-      setSidebarOpen(true);
-      return;
-    }
+    e.stopPropagation();
     const rect = e.currentTarget.getBoundingClientRect();
     setProfileRect({ top: rect.top, left: rect.left, width: rect.width });
-    setProfileOpen(!profileOpen);
+    setProfileOpen((open) => !open);
   };
 
   const handleSidebarClick = () => {
@@ -315,7 +315,7 @@ function AppContent() {
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <button
-                  ref={profileButtonRef}
+                  ref={desktopProfileButtonRef}
                   onClick={handleProfileClick}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl hover:bg-[var(--elevated-bg)]/50 hover-pop transition-all duration-200 cursor-pointer"
                   title="Profile"
@@ -351,7 +351,7 @@ function AppContent() {
               </button>
               <div className="relative">
                 <button
-                  ref={profileButtonRef}
+                  ref={desktopProfileButtonRef}
                   onClick={handleProfileClick}
                   className="p-2 rounded-lg hover:bg-[var(--elevated-bg)]/50 hover-pop transition-colors cursor-pointer"
                   title="Profile"
@@ -432,7 +432,7 @@ function AppContent() {
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <button
-                  ref={profileButtonRef}
+                  ref={mobileProfileButtonRef}
                   onClick={handleProfileClick}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl hover:bg-[var(--elevated-bg)]/50 hover-pop transition-all duration-200 cursor-pointer"
                   title="Profile"
@@ -598,14 +598,14 @@ function AppContent() {
       )}
 
       {profileOpen && profileRect && (
-        <div ref={menuRef} className="fixed inset-0 z-50">
+        createPortal(<div ref={menuRef} className="fixed inset-0 z-[1000]">
           <div className="fixed inset-0" onClick={() => setProfileOpen(false)} />
           <div className="relative" style={{ position: 'fixed', top: profileRect.top - 8, left: Math.max(120, Math.min(profileRect.left + profileRect.width / 2, window.innerWidth - 120)), transform: 'translateX(-50%) translateY(-100%)' }}>
             <div className="absolute inset-0 rounded-xl bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
             <div className="relative z-20">
           <GlassSurface borderRadius={12} width="auto" height="auto" dark={theme === "dark"} padding={0}>
             <div className="w-56">
-              <div ref={profileRef} className="p-3 border-b border-gray-200/20 dark:border-white/10">
+              <div className="p-3 border-b border-gray-200/20 dark:border-white/10">
                 <p className="text-sm font-medium truncate">{user?.displayName || "User"}</p>
                 <p className="text-xs text-gray-500 truncate">{user?.email || ""}</p>
               </div>
@@ -643,7 +643,7 @@ function AppContent() {
           </GlassSurface>
           </div>
           </div>
-        </div>
+        </div>, document.body)
       )}
 
       {/* Install PWA banner */}

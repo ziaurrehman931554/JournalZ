@@ -166,7 +166,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     async (note: Note) => {
       await saveNoteLocally(note);
       setNotes((prev) => prev.map((n) => (n.id === note.id ? note : n)));
-      setSelectedNote(note);
+      setSelectedNote((current) => current?.id === note.id ? note : current);
       if (user) {
         await addToSyncQueue("notes", note.id, "update", note);
         await autoSync();
