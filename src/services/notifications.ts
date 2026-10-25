@@ -1,5 +1,3 @@
-const APP_VERSION = "v3.1";
-
 export async function requestNotificationPermission(): Promise<boolean> {
   if (!("Notification" in window)) return false;
   if (Notification.permission === "granted") return true;
@@ -13,26 +11,18 @@ export async function registerServiceWorker(): Promise<void> {
   if (!("serviceWorker" in navigator)) return;
 
   try {
-    const registration = await navigator.serviceWorker.register("/sw.js");
-
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      window.location.reload();
+    const baseUrl = new URL(import.meta.env.BASE_URL, window.location.origin);
+    const serviceWorkerUrl = new URL("sw.js", baseUrl);
+    const registration = await navigator.serviceWorker.register(serviceWorkerUrl, {
+      scope: baseUrl.pathname,
     });
 
-    navigator.serviceWorker.addEventListener("message", (event) => {
-      if (event.data?.type === "version-mismatch") {
-        window.location.reload();
-      }
+    // Let the browser update the worker on its normal cadence, and check again
+    // when connectivity returns. Taking control must not force a page reload.
+    window.addEventListener("online", () => {
+      registration.update().catch(() => undefined);
     });
-
-    const reg = await navigator.serviceWorker.ready;
-    reg.active?.postMessage({ type: "check-version", version: APP_VERSION });
-
-    const checkForUpdates = () => {
-      registration.update().catch(() => {});
-    };
-    checkForUpdates();
-    setInterval(checkForUpdates, 5 * 60 * 1000);
+    registration.update().catch(() => undefined);
   } catch {
     // service worker registration failed
   }

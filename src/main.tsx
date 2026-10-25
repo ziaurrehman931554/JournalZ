@@ -8,13 +8,22 @@ import "./index.css";
 
 registerServiceWorker();
 
-let deferredPrompt: Event | null = null;
+export interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+}
+
+let deferredPrompt: BeforeInstallPromptEvent | null = null;
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
-  deferredPrompt = e;
+  deferredPrompt = e as BeforeInstallPromptEvent;
 });
 
 export function getDeferredPrompt() {
+  return deferredPrompt;
+}
+
+export function consumeDeferredPrompt() {
   const p = deferredPrompt;
   deferredPrompt = null;
   return p;

@@ -10,12 +10,19 @@ interface ReminderEditorProps {
   onCancel?: () => void;
 }
 
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function ReminderEditor({ reminder, onSave, onDelete, onCancel }: ReminderEditorProps) {
   const [title, setTitle] = useState(reminder.title || "");
   const [description, setDescription] = useState(reminder.description || "");
 
   const [dueDate, setDueDate] = useState(
-    reminder.dueDate ? new Date(reminder.dueDate).toISOString().slice(0, 10) : ""
+    reminder.dueDate ? formatLocalDate(new Date(reminder.dueDate)) : ""
   );
   const [dueTime, setDueTime] = useState(
     reminder.dueDate
@@ -53,8 +60,8 @@ export default function ReminderEditor({ reminder, onSave, onDelete, onCancel }:
   const removeTag = (t: string) => setTags(tags.filter((x) => x !== t));
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+    <div className="h-full min-h-0 overflow-hidden flex flex-col">
+      <div className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-white/10">
         <h2 className="font-semibold">{reminder.id ? "Edit Reminder" : "New Reminder"}</h2>
         <div className="flex gap-2">
           {onDelete && (
@@ -77,7 +84,7 @@ export default function ReminderEditor({ reminder, onSave, onDelete, onCancel }:
           </button>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-6 space-y-5">
+      <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-5">
         <input
           type="text"
           placeholder="Reminder title"

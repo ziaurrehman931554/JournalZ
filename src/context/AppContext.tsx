@@ -97,23 +97,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }, 1500);
   }, [user]);
 
+  const syncFromCloud = useCallback(async () => {
+    if (!user || !navigator.onLine) return;
+    try {
+      await syncToFirestore(user.uid);
+      const remote = await pullFromFirestore(user.uid);
+      setNotes(remote.notes);
+      setFolders(remote.folders);
+      setReminders(remote.reminders);
+      setSyncStatus({ lastSynced: Date.now(), isSyncing: false, pendingChanges: 0 });
+    } catch (e) {
+      console.error("[sync] cloud sync failed:", e);
+    }
+  }, [user]);
+
   useEffect(() => {
     loadLocalData();
   }, [loadLocalData]);
 
   useEffect(() => {
     if (user && navigator.onLine) {
-      (async () => {
-        try {
-          await syncToFirestore(user.uid);
-          const remote = await pullFromFirestore(user.uid);
-          setNotes(remote.notes);
-          setFolders(remote.folders);
-          setReminders(remote.reminders);
-        } catch (e) {
-          console.error("[sync] login effect failed:", e);
-        }
-      })();
+      void syncFromCloud();
     } else if (!user) {
       clearAllLocalData().then(() => {
         setNotes([]);
@@ -122,7 +126,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setSelectedNote(null);
       });
     }
-  }, [user]);
+  }, [user, syncFromCloud]);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      void syncFromCloud();
+    };
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [syncFromCloud]);
 
   const createNote = useCallback(
     async (folderId: string, type: "note" | "checklist") => {
@@ -277,10 +289,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const syncNow = useCallback(async () => {
     if (!user) return;
+    if (!navigator.onLine) throw new Error("Cannot sync while offline");
     setSyncStatus((prev) => ({ ...prev, isSyncing: true }));
     try {
       await syncToFirestore(user.uid);
-      await pullFromFirestore(user.uid);
+      const remote = await pullFromFirestore(user.uid);
+      setNotes(remote.notes);
+      setFolders(remote.folders);
+      setReminders(remote.reminders);
       setSyncStatus({ lastSynced: Date.now(), isSyncing: false, pendingChanges: 0 });
     } catch (e) {
       setSyncStatus((prev) => ({ ...prev, isSyncing: false }));

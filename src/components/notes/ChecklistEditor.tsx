@@ -1,7 +1,7 @@
 import type { Note, ChecklistItem } from "../../types";
 import {
   Trash2, X, MoreHorizontal, Check, Loader, AlertCircle,
-  Lock, Share2, Search, Pin, Bold, Italic, Underline, ShoppingCart,
+  Share2, Pin, Bold, Italic, Underline, ShoppingCart,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
@@ -170,7 +170,6 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
   const firstLine = title || "Checklist";
 
   const menuItems = [
-    { icon: Lock, label: "Lock", action: () => {} },
     { icon: Share2, label: "Share", action: () => {
       const text = items.map(i => `[${i.checked ? "x" : " "}] ${i.text}`).join("\n");
       if (navigator.share) navigator.share({ title, text });
@@ -180,7 +179,6 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
       onDelete?.(note.id);
       onClose?.();
     }},
-    { icon: Search, label: "Find in notes", action: () => {} },
     { icon: Pin, label: note.isPinned ? "Unpin" : "Pin", action: () => {
       onUpdate({ ...note, isPinned: !note.isPinned, updatedAt: Date.now() });
     }},
@@ -226,6 +224,8 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
     setSaveStatus("idle");
     setDisplayStatus("idle");
     setShowMenu(false);
+    // Draft state belongs to a checklist and should reset only when selecting another one.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [note.id]);
 
   useEffect(() => {
@@ -261,23 +261,20 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
     const vv = window.visualViewport;
     if (!vv) return;
     const handler = () => {
-      if (window.innerHeight > maxViewportHeightRef.current) {
-        maxViewportHeightRef.current = window.innerHeight;
-      }
-      const diff = Math.max(
-        window.innerHeight - vv.height,
-        maxViewportHeightRef.current - vv.height
-      );
-      setKeyboardHeight(diff > 0 ? diff : 0);
+      maxViewportHeightRef.current = Math.max(maxViewportHeightRef.current, window.innerHeight);
+      setKeyboardHeight(Math.max(0, maxViewportHeightRef.current - vv.offsetTop - vv.height));
     };
     const resetMax = () => {
       maxViewportHeightRef.current = window.innerHeight;
+      handler();
     };
     vv.addEventListener("resize", handler);
     window.addEventListener("orientationchange", resetMax);
+    vv.addEventListener("scroll", handler);
     return () => {
       vv.removeEventListener("resize", handler);
       window.removeEventListener("orientationchange", resetMax);
+      vv.removeEventListener("scroll", handler);
     };
   }, []);
 
@@ -294,7 +291,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
   }, []);
 
   return (
-    <div className="relative h-full flex flex-col">
+    <div className="relative h-full min-h-0 overflow-hidden flex flex-col">
       {/* Top toolbar */}
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 md:px-16 pt-3">
         <div className="relative">
@@ -399,7 +396,7 @@ export default function ChecklistEditor({ note, onUpdate, onClose, onDelete }: C
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 pl-4 md:pl-16 pt-20 pr-4 md:pr-16 overflow-y-auto" style={{ paddingBottom: `${64 + keyboardHeight}px` }}>
+      <div className="flex-1 min-h-0 pl-4 md:pl-16 pt-20 pr-4 md:pr-16 pb-16 overflow-y-auto">
         {/* Title */}
         <input
           ref={titleRef}

@@ -99,7 +99,7 @@ const GlassSurface = React.forwardRef<HTMLDivElement, GlassSurfaceProps>(({
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  const generateDisplacementMap = () => {
+  const generateDisplacementMap = useCallback(() => {
     const rect = containerRef.current?.getBoundingClientRect();
     const actualWidth = rect?.width || 400;
     const actualHeight = rect?.height || 200;
@@ -122,11 +122,21 @@ const GlassSurface = React.forwardRef<HTMLDivElement, GlassSurfaceProps>(({
         <rect x="${edgeSize}" y="${edgeSize}" width="${actualWidth - edgeSize * 2}" height="${actualHeight - edgeSize * 2}" rx="${borderRadius}" fill="hsl(0 0% ${brightness}% / ${opacity})" style="filter:blur(${blur}px)" />
       </svg>`;
     return `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
-  };
+  }, [borderWidth, borderRadius, redGradId, blueGradId, mixBlendMode, brightness, opacity, blur]);
 
-  const updateDisplacementMap = () => {
+  const updateDisplacementMap = useCallback(() => {
     feImageRef.current?.setAttribute('href', generateDisplacementMap());
-  };
+  }, [generateDisplacementMap]);
+
+  const supportsSVGFilters = useCallback(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return false;
+    const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+    const isFirefox = /Firefox/.test(navigator.userAgent);
+    if (isWebkit || isFirefox) return false;
+    const div = document.createElement('div');
+    div.style.backdropFilter = `url(#${filterId})`;
+    return div.style.backdropFilter !== '';
+  }, [filterId]);
 
   useEffect(() => {
     updateDisplacementMap();
@@ -145,6 +155,7 @@ const GlassSurface = React.forwardRef<HTMLDivElement, GlassSurfaceProps>(({
   }, [
     width, height, borderRadius, borderWidth, brightness, opacity, blur,
     displace, distortionScale, redOffset, greenOffset, blueOffset, xChannel, yChannel, mixBlendMode,
+    updateDisplacementMap,
   ]);
 
   useEffect(() => {
@@ -154,7 +165,7 @@ const GlassSurface = React.forwardRef<HTMLDivElement, GlassSurfaceProps>(({
     const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
-  }, []);
+  }, [supportsSVGFilters]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -163,21 +174,11 @@ const GlassSurface = React.forwardRef<HTMLDivElement, GlassSurfaceProps>(({
     });
     resizeObserver.observe(containerRef.current);
     return () => resizeObserver.disconnect();
-  }, []);
+  }, [updateDisplacementMap]);
 
   useEffect(() => {
     setTimeout(updateDisplacementMap, 0);
-  }, [width, height]);
-
-  const supportsSVGFilters = () => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') return false;
-    const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-    const isFirefox = /Firefox/.test(navigator.userAgent);
-    if (isWebkit || isFirefox) return false;
-    const div = document.createElement('div');
-    div.style.backdropFilter = `url(#${filterId})`;
-    return div.style.backdropFilter !== '';
-  };
+  }, [width, height, updateDisplacementMap]);
 
   const supportsBackdropFilter = () => {
     if (typeof window === 'undefined') return false;

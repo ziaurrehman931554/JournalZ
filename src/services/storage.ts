@@ -120,29 +120,38 @@ export async function clearAllLocalData(): Promise<void> {
 }
 
 export async function syncToFirestore(userId: string): Promise<void> {
-  const queue = await getSyncQueue();
-  if (queue.length === 0) return;
-
-  const batch = writeBatch(firestore);
-
-  for (const item of queue as Array<{
+  const queue = await getSyncQueue() as Array<{
+    id: number;
     collection: string;
     docId: string;
     action: SyncAction;
     data?: Note | Folder | Reminder;
-  }>) {
-    const ref = doc(firestore, `users/${userId}/${item.collection}`, item.docId);
-    if (item.action === "delete") {
-      batch.delete(ref);
-    } else if (item.data) {
-      // Strip undefined values because Firestore rejects them
-      const cleanData = JSON.parse(JSON.stringify({ ...item.data, userId, syncedAt: Date.now() }));
-      batch.set(ref, cleanData);
-    }
-  }
+  }>;
+  if (queue.length === 0) return;
 
-  await batch.commit();
-  await clearSyncQueue();
+  // Firestore batches are limited to 500 writes. Remove queue records only
+  // after their own batch commits so edits queued while syncing are retained.
+  for (let start = 0; start < queue.length; start += 500) {
+    const items = queue.slice(start, start + 500);
+    const batch = writeBatch(firestore);
+
+    for (const item of items) {
+      const ref = doc(firestore, `users/${userId}/${item.collection}`, item.docId);
+      if (item.action === "delete") {
+        batch.delete(ref);
+      } else if (item.data) {
+        // Strip undefined values because Firestore rejects them.
+        const cleanData = JSON.parse(JSON.stringify({ ...item.data, userId, syncedAt: Date.now() }));
+        batch.set(ref, cleanData);
+      }
+    }
+
+    await batch.commit();
+    const db = await getDB();
+    const tx = db.transaction("syncQueue", "readwrite");
+    for (const item of items) tx.store.delete(item.id);
+    await tx.done;
+  }
 }
 
 export async function pullFromFirestore(userId: string): Promise<{

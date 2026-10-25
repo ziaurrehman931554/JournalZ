@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { getDeferredPrompt } from "../main";
+import { getDeferredPrompt, consumeDeferredPrompt } from "../main";
+import type { BeforeInstallPromptEvent } from "../main";
 
 interface InstallPromptState {
   canInstall: boolean;
@@ -11,28 +12,31 @@ interface InstallPromptState {
 }
 
 export function useInstallPrompt(): InstallPromptState {
-  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(() => getDeferredPrompt());
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(() => getDeferredPrompt());
   const [dismissed, setDismissed] = useState(false);
 
   const isStandalone =
     window.matchMedia("(display-mode: standalone)").matches ||
-    (window.navigator as any).standalone === true;
+    (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream;
 
   useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
   const install = () => {
-    if (deferredPrompt) {
-      (deferredPrompt as any).prompt();
-      (deferredPrompt as any).userChoice.then(() => setDeferredPrompt(null));
+    const prompt = deferredPrompt || consumeDeferredPrompt();
+    if (prompt) {
+      void prompt.prompt()
+        .then(() => prompt.userChoice)
+        .then(() => setDeferredPrompt(null))
+        .catch(() => setDeferredPrompt(null));
     }
   };
 

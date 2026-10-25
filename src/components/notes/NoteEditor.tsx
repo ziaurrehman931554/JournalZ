@@ -1,7 +1,7 @@
 import type { Note, ChecklistItem } from "../../types";
 import {
   Plus, Trash2, X, MoreHorizontal, Check, Loader, AlertCircle,
-  Lock, Share2, Search, Pin, Bold, Italic, Underline, Strikethrough,
+  Share2, Pin, Bold, Italic, Underline, Strikethrough,
   List, ListOrdered, Table, ChevronDown, ArrowUpFromLine, ArrowDownToLine,
   ArrowLeftFromLine, ArrowRightFromLine, TableProperties
 } from "lucide-react";
@@ -228,6 +228,8 @@ export default function NoteEditor({ note, onUpdate, onClose, onDelete }: NoteEd
         editor.commands.setContent(targetHtml);
       }
     }
+    // Reset TipTap content only when switching notes; same-note updates may be unsaved typing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [note.id]);
 
   useEffect(() => {
@@ -237,6 +239,8 @@ export default function NoteEditor({ note, onUpdate, onClose, onDelete }: NoteEd
       }, 100);
       return () => clearTimeout(t);
     }
+    // Focus when the active note or editor instance changes, not on every editor transaction.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [note.id, !!editor]);
 
   useEffect(() => {
@@ -246,6 +250,8 @@ export default function NoteEditor({ note, onUpdate, onClose, onDelete }: NoteEd
     setSaveStatus("idle");
     setDisplayStatus("idle");
     setShowMenu(false);
+    // Draft state belongs to a note and should reset only when selecting another note.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [note.id]);
 
   useEffect(() => {
@@ -287,23 +293,20 @@ export default function NoteEditor({ note, onUpdate, onClose, onDelete }: NoteEd
     const vv = window.visualViewport;
     if (!vv) return;
     const handler = () => {
-      if (window.innerHeight > maxViewportHeightRef.current) {
-        maxViewportHeightRef.current = window.innerHeight;
-      }
-      const diff = Math.max(
-        window.innerHeight - vv.height,
-        maxViewportHeightRef.current - vv.height
-      );
-      setKeyboardHeight(diff > 0 ? diff : 0);
+      maxViewportHeightRef.current = Math.max(maxViewportHeightRef.current, window.innerHeight);
+      setKeyboardHeight(Math.max(0, maxViewportHeightRef.current - vv.offsetTop - vv.height));
     };
     const resetMax = () => {
       maxViewportHeightRef.current = window.innerHeight;
+      handler();
     };
     vv.addEventListener("resize", handler);
     window.addEventListener("orientationchange", resetMax);
+    vv.addEventListener("scroll", handler);
     return () => {
       vv.removeEventListener("resize", handler);
       window.removeEventListener("orientationchange", resetMax);
+      vv.removeEventListener("scroll", handler);
     };
   }, []);
 
@@ -383,7 +386,6 @@ export default function NoteEditor({ note, onUpdate, onClose, onDelete }: NoteEd
     : title;
 
   const menuItems = [
-    { icon: Lock, label: "Lock", action: () => {} },
     { icon: Share2, label: "Share", action: () => {
       if (navigator.share) {
         navigator.share({ title: note.title, text: editor?.getText() || note.content });
@@ -394,7 +396,6 @@ export default function NoteEditor({ note, onUpdate, onClose, onDelete }: NoteEd
       onDelete?.(note.id);
       onClose?.();
     }},
-    { icon: Search, label: "Find in notes", action: () => {} },
     { icon: Pin, label: note.isPinned ? "Unpin" : "Pin", action: () => {
       onUpdate({ ...note, isPinned: !note.isPinned, updatedAt: Date.now() });
     }},
@@ -577,7 +578,7 @@ export default function NoteEditor({ note, onUpdate, onClose, onDelete }: NoteEd
   );
 
   return (
-    <div className="relative h-full flex flex-col">
+    <div className="relative h-full min-h-0 overflow-hidden flex flex-col">
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 md:px-16 pt-3">
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-[var(--surface-bg)]/20 backdrop-blur-[2px] z-10" />
@@ -681,7 +682,7 @@ export default function NoteEditor({ note, onUpdate, onClose, onDelete }: NoteEd
         </div>
       </div>
 
-      <div className="flex-1 pl-4 md:pl-16 pt-20 pr-4 md:pr-16 overflow-y-auto" style={{ paddingBottom: `${64 + keyboardHeight}px` }}>
+      <div className="flex-1 min-h-0 pl-4 md:pl-16 pt-20 pr-4 md:pr-16 pb-16 overflow-y-auto">
         <EditorContent editor={editor} className="Tiptap min-h-full" />
       </div>
 

@@ -23,7 +23,11 @@ export default function ShareBanner() {
 
   useEffect(() => {
     let dismissed = false;
-    try { dismissed = !!sessionStorage.getItem("journalz-banner-dismissed"); } catch {}
+    try {
+      dismissed = !!sessionStorage.getItem("journalz-banner-dismissed");
+    } catch {
+      // Storage may be unavailable in private browsing.
+    }
     if (dismissed) return;
 
     timer(() => setStage("visible"), 3000);
@@ -40,7 +44,11 @@ export default function ShareBanner() {
     if (stage !== "exiting") return;
     timer(() => {
       setStage("hidden");
-      try { sessionStorage.setItem("journalz-banner-dismissed", "true"); } catch {}
+      try {
+        sessionStorage.setItem("journalz-banner-dismissed", "true");
+      } catch {
+        // The banner can still be dismissed for this render.
+      }
     }, 300);
     return clear;
   }, [stage]);
@@ -48,7 +56,11 @@ export default function ShareBanner() {
   const dismiss = () => {
     clear();
     setStage("exiting");
-    try { sessionStorage.setItem("journalz-banner-dismissed", "true"); } catch {}
+    try {
+      sessionStorage.setItem("journalz-banner-dismissed", "true");
+    } catch {
+      // The banner can still be dismissed for this render.
+    }
   };
 
   if (stage === "hidden") return null;

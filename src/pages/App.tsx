@@ -153,7 +153,7 @@ function AppContent() {
     try {
       await logout();
       setProfileOpen(false);
-    } catch (e) {
+    } catch {
       setProfileOpen(false);
     }
   };
@@ -259,8 +259,8 @@ function AppContent() {
   const showReminderList = editingReminder || (!browseOpen && selectedView === "reminders");
 
   return (
-    <div className="h-screen overflow-hidden relative">
-      <div className="h-full p-3 flex gap-3">
+    <div className="h-full min-h-0 overflow-hidden relative">
+      <div className="h-full min-h-0 p-3 flex gap-3">
         <div className="relative group shrink-0 h-full hidden md:block">
           <aside
             onClick={handleSidebarClick}
@@ -475,9 +475,10 @@ function AppContent() {
           </button>
         )}
 
-        <div className="flex-1 overflow-hidden rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)]/60 border border-white/10 shadow-xl">
+        <div className="min-w-0 min-h-0 flex-1 overflow-hidden rounded-2xl backdrop-blur-2xl bg-[var(--surface-bg)]/60 border border-white/10 shadow-xl">
           {showReminderList && editingReminder ? (
             <ReminderEditor
+              key={editingReminder.id}
               reminder={editingReminder}
               onSave={handleSaveReminder}
               onDelete={handleDeleteReminder}
