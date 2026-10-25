@@ -1,48 +1,59 @@
-const CACHE_NAME = "journalz-v3";
-let appVersion = null;
+const CACHE_NAME = "journalz-v4";
 
-self.addEventListener("install", () => {
-  self.skipWaiting();
+self.addEventListener("install", (event) => {
+  // Keep a copy of the app shell so a first offline visit after installation
+  // can still start. A failed pre-cache must not prevent the worker installing.
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.add(new URL("./", self.registration.scope)))
+      .catch(() => undefined)
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    fetch(event.request).then((response) => {
-      if (response && response.status === 200) {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+  const request = event.request;
+  const url = new URL(request.url);
+
+  // Never intercept writes, cross-origin requests, or non-HTTP schemes. In
+  // particular, Firebase requests must keep their normal network behavior.
+  if (request.method !== "GET" || url.origin !== self.location.origin) return;
+
+  const isNavigation = request.mode === "navigate";
+  const isAppAsset = ["script", "style", "image", "font", "manifest"].includes(request.destination);
+  if (!isNavigation && !isAppAsset) return;
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    try {
+      const response = await fetch(request);
+      if (response.ok && response.type === "basic") {
+        await cache.put(request, response.clone()).catch(() => undefined);
       }
       return response;
-    }).catch(async () => {
-      const cached = await caches.match(event.request);
-      return cached || new Response("Offline", { status: 503 });
-    })
-  );
+    } catch {
+      const cached = await cache.match(request);
+      if (cached) return cached;
+
+      if (isNavigation) {
+        const appShell = await cache.match(new URL("./", self.registration.scope));
+        if (appShell) return appShell;
+      }
+
+      return new Response("You are offline and this page is not available yet.", {
+        status: 503,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      });
+    }
+  })());
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    Promise.all([
-      clients.claim(),
-      caches.keys().then((keys) =>
-        Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-      ),
-    ])
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((key) => key.startsWith("journalz-") && key !== CACHE_NAME).map((key) => caches.delete(key)))
+    ).then(() => self.clients.claim())
   );
-});
-
-self.addEventListener("message", (event) => {
-  const { type, version } = event.data || {};
-  if (type === "check-version") {
-    if (appVersion !== null && appVersion !== version) {
-      caches.delete(CACHE_NAME).then(() => {
-        clients.matchAll().then((clients) => {
-          clients.forEach((c) => c.postMessage({ type: "version-mismatch" }));
-        });
-      });
-    }
-    appVersion = version;
-  }
 });
 
 self.addEventListener("push", (event) => {
@@ -51,11 +62,14 @@ self.addEventListener("push", (event) => {
     try { data = event.data.json(); } catch { data.body = event.data.text(); }
   }
   event.waitUntil(
-    self.registration.showNotification(data.title, { body: data.body, icon: "/icon-192.png" })
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: new URL("icon-192.png", self.registration.scope).href,
+    })
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  event.waitUntil(clients.openWindow("/app"));
+  event.waitUntil(clients.openWindow(new URL("app", self.registration.scope).href));
 });
